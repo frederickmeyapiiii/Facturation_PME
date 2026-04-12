@@ -9,6 +9,7 @@ Ce dossier regroupe la documentation technique du projet Assistant Saas. Il est 
 - `Securiser_Infrastructure_Assistant_Saas.md` : les choix et les mesures de sécurité appliqués à l’infrastructure.
 - `Automatisation_Creation_Serveurs_Assistant_Saas.md` : l’automatisation de création et de configuration d’un serveur.
 - `Environnement_de_test_Assistant_Saas.md` : la description de l’environnement de test isolé et des preuves associées.
+- `Presentation_Orale_Assistant_Saas.md` : des conseils pour préparer et présenter le projet devant le jury.
 
 ## Comment utiliser ces documents
 
