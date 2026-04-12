@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: 'Helvetica', sans-serif; color: #333; margin: 0; padding: 40px; }
+        .header { border-bottom: 3px solid #2563eb; padding-bottom: 20px; margin-bottom: 30px; }
+        .grid { display: flex; justify-content: space-between; }
+        .col { width: 45%; }
+        table { width: 100%; border-collapse: collapse; margin-top: 50px; }
+        th { background: #f8fafc; text-align: left; padding: 12px; border-bottom: 2px solid #e2e8f0; }
+        td { padding: 12px; border-bottom: 1px solid #e2e8f0; }
+        .total-box { margin-top: 40px; margin-left: auto; width: 250px; background: #f8fafc; padding: 15px; border-radius: 8px; }
+        .footer { position: fixed; bottom: 0; text-align: center; font-size: 10px; color: #94a3b8; width: 100%; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 style="color: #2563eb; margin: 0;">FACTURE</h1>
+        <p style="margin: 5px 0;">N° {{ invoice.number }}</p>
+    </div>
+
+    <div class="grid" style="overflow: hidden;">
+        <div style="float: left; width: 50%;">
+            <h3 style="margin-bottom: 5px;">ÉMETTEUR</h3>
+            <p><strong>{{ company.name }}</strong><br>SIRET : {{ company.siret }}</p>
+        </div>
+        <div style="float: right; width: 40%; text-align: right;">
+            <h3 style="margin-bottom: 5px;">CLIENT</h3>
+            <p><strong>{{ invoice.client_name }}</strong><br>Date : {{ invoice.date|date:"d/m/Y" }}</p>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th style="text-align: right;">Montant HT</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Prestation de services / Vente de produits</td>
+                <td style="text-align: right;">{{ invoice.amount_ht|floatformat:2 }} €</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="total-box">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+            <span>Total HT :</span> <span style="float: right;">{{ invoice.amount_ht|floatformat:2 }} €</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+            <span>TVA ({{ tva_rate }}%) :</span> <span style="float: right;">{{ amount_tva|floatformat:2 }} €</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-weight: bold; color: #2563eb; border-top: 1px solid #ddd; padding-top: 5px;">
+            <span>TOTAL TTC :</span> <span style="float: right;">{{ amount_ttc|floatformat:2 }} €</span>
+        </div>
+    </div>
+
+    <div class="footer">
+        {{ company.name }} - Document généré par Assistant Saas
+    </div>
+</body>
+</html>
