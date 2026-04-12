@@ -1,7 +1,6 @@
 # Environnement de test – Assistant Saas
 
-## 1. Objectif du rendu
-Session 8 — Environnement de test
+## 1. Objectif
 
 Ce document décrit l’environnement de test du projet Assistant Saas, en lien avec le référentiel BC02-CP5.
 Il montre que l’application dispose d’un environnement distinct de la production et d’une configuration versionnée dédiée au test.

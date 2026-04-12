@@ -1,11 +1,11 @@
 # Automatisation création de serveurs – Assistant Saas
 
-## 1. Objectif du rendu
+## 1. Objectif
 
-Ce document correspond à la session 4 du module ASD, compétence **CP1**.
-Il présente l’automatisation de la création et de la configuration d’un serveur virtuel pour le projet **Assistant Saas**.
+Ce document présente l’automatisation de la création et de la configuration d’un serveur virtuel pour le projet **Assistant Saas**.
+Il explique les choix techniques, les scripts produits et les vérifications mises en place pour rendre l’infrastructure reproductible.
 
-Il doit être intégré au dossier de projet dans le dossier `docs/`.
+Ce document fait partie du dossier de projet et est destiné à être lu par le jury et l’équipe pédagogique.
 
 ## 2. Contexte
 
@@ -92,7 +92,7 @@ Pour chaque script, documenter :
 
 ## 7. Correspondance avec CP1
 
-Ce rendu montre que tu maîtrises :
+Ce document montre que tu maîtrises :
 - la création d’un script Bash pour provisionner un serveur,
 - l’automatisation de la configuration,
 - la vérification de l’état du serveur,
@@ -101,7 +101,7 @@ Ce rendu montre que tu maîtrises :
 ## 8. Où mettre ce document ?
 
 - Dans `docs/Automatisation_Creation_Serveurs_Assistant_Saas.md`.
-- Dans ton dossier final, le jury doit pouvoir trouver :
+- Dans le dossier final, le jury doit pouvoir trouver :
   - `docs/Cahier_des_charges_Assistant_Saas.md`,
   - `docs/Securiser_Infrastructure_Assistant_Saas.md`,
   - `docs/Automatisation_Creation_Serveurs_Assistant_Saas.md`,

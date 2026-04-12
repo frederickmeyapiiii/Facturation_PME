@@ -2,7 +2,7 @@
 Assistant Saas
 
 Projet RNCP – Hackathon Innovation (3PRJ1)
-Bachelor 3 – Unité 1 – École IT (2025–2026)
+Bachelor 3 – École IT (2025–2026)
 
 📌 Description
 
@@ -55,3 +55,5 @@ Stack technique
 	•	Automatisation : Scripts Bash
 	•	Sécurité : Authentification, chiffrement, protection OWASP
 	•	Déploiement : Serveur Linux + accès web
+
+La documentation du projet est rassemblée dans le dossier `docs/`. Elle est formulée pour être lisible par le jury et par l’équipe pédagogique, avec des explications sur le CDC, l’architecture, la sécurité et les environnements de déploiement.

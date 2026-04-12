@@ -1,11 +1,11 @@
 # Sécuriser l’infrastructure – Assistant Saas
 
-## 1. Objectif du rendu
+## 1. Objectif
 
 Ce document présente la sécurisation de l’infrastructure du projet **Assistant Saas**.
-Il correspond à la session 6 du module ASD sur la compétence **CP3** : intégrer les règles de sécurité à chaque étape de l’infrastructure et tester les mises à jour avant déploiement.
+Il explique les mesures prises pour l’accès SSH, le pare-feu, les mises à jour et les pratiques de durcissement.
 
-Ce document est à placer dans le dossier `docs/` du projet.
+Ce document fait partie du dossier de projet et est destiné à être lu par le jury et l’équipe pédagogique.
 
 ## 2. Contexte
 
