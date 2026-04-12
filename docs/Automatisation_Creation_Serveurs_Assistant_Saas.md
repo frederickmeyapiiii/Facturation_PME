@@ -5,7 +5,7 @@
 Ce document présente l’automatisation de la création et de la configuration d’un serveur virtuel pour le projet **Assistant Saas**.
 Il explique les choix techniques, les scripts produits et les vérifications mises en place pour rendre l’infrastructure reproductible.
 
-Ce document fait partie du dossier de projet et est destiné à être lu par le jury et l’équipe pédagogique.
+Ce document fait partie du dossier de projet et est destiné à être lu par le jury.
 
 ## 2. Contexte
 

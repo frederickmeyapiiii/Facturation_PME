@@ -110,8 +110,3 @@ Avec des bases de données distinctes et des services isolés.
 2. Conserver `docker-compose.test.yml` comme preuve de la configuration test.
 3. Ajouter un smoke test dans le pipeline ou dans la documentation de build.
 4. Mettre à jour le schéma d’architecture pour représenter `test`, `pré-prod` et `prod` comme trois niveaux séparés.
-
-## 11. Où ranger ce document ?
-
-- Dans `docs/` avec les autres livrables.
-- Le jury pourra lire ce document comme la partie environnement de test du dossier.

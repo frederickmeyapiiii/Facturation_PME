@@ -5,7 +5,7 @@
 Ce document présente la sécurisation de l’infrastructure du projet **Assistant Saas**.
 Il explique les mesures prises pour l’accès SSH, le pare-feu, les mises à jour et les pratiques de durcissement.
 
-Ce document fait partie du dossier de projet et est destiné à être lu par le jury et l’équipe pédagogique.
+Ce document fait partie du dossier de projet et est destiné à être lu par le jury.
 
 ## 2. Contexte
 
