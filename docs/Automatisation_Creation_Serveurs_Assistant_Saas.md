@@ -19,7 +19,7 @@ Le jury vérifie que :
 - la configuration est conforme au cahier des charges,
 - la documentation est mise à jour.
 
-La compétence CP1 évalue la capacité à écrire un script de création de serveur, à automatiser sa configuration, à vérifier son bon fonctionnement et à documenter le travail.
+Ce document montre la capacité à écrire un script de création de serveur, à automatiser sa configuration, à vérifier son bon fonctionnement et à documenter le travail.
 
 ## 4. Scripts produits
 
