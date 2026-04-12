@@ -41,6 +41,12 @@ Applications et utilisateurs :
 - **Version** : application basée sur Django 4.2 et Python 3.14.
 - **Compatibilité** : le code doit pouvoir être exécuté localement avec un environnement virtuel Python.
 
+## 3.1 Environnements projet
+
+- **Test** : environnement isolé pour valider les premières corrections. Il doit disposer d’une configuration dédiée versionnée dans le dépôt (`docker-compose.test.yml`).
+- **Pré-production** : miroir fonctionnel de la production, utilisant le même processus de déploiement et les mêmes images/logiques.
+- **Production** : service final pour les utilisateurs.
+
 ## 4. Contraintes de sécurité
 
 - **Authentification** : l’accès à l’application doit être sécurisé par un login/mot de passe.
