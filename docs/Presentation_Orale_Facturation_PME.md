@@ -1,16 +1,16 @@
-# Présentation orale — Assistant Saas
+# Présentation orale — Facturation PME
 
 ## 1. Objectif
 
-Ce document propose des conseils pour préparer et présenter Oralement le projet Assistant Saas devant le jury.
+Ce document propose des conseils pour préparer et présenter oralement le projet de facturation PME devant le jury.
 Il complète le dossier technique en expliquant comment structurer ton discours et quelles preuves mettre en avant.
 
 ## 2. Structure recommandée
 
 ### 2.1 Introduction (1 min)
-- Présente rapidement le client fictif : une PME qui a besoin d’un outil de facturation, comptabilité et trésorerie.
-- Explique le problème : gestion manuelle, erreurs, manque de centralisation et séparation des rôles.
-- Donne l’objectif : déployer une application SaaS qui permet de gérer factures, sociétés, utilisateurs et reporting.
+- Présente rapidement le client fictif : une PME qui a besoin d’un outil simple de facturation.
+- Explique le problème : gestion manuelle, erreurs, manque de centralisation et difficulté à suivre les paiements.
+- Donne l’objectif : déployer une application Django qui permet de gérer les factures d’une entreprise unique.
 
 ### 2.2 Architecture et stack (1 min)
 - Montre la stack technique : Django, Python, SQLite en local, scripts Bash, documentation et Git.
@@ -19,13 +19,13 @@ Il complète le dossier technique en expliquant comment structurer ton discours 
 
 ### 2.3 Sécurité et infrastructure (1 min)
 - Explique les principaux choix de sécurité : SSH sécurisé, pare-feu, certificats TLS, protection des accès.
-- Dis que tu as documenté ces choix dans `docs/Securiser_Infrastructure_Assistant_Saas.md`.
+- Dis que tu as documenté ces choix dans `docs/Securiser_Infrastructure_Facturation_PME.md`.
 - Parle de la vérification : tests de santé, déploiement validé avant production.
 
 ### 2.4 Environnements et tests (1 min)
 - Présente l’environnement de test : fichier `docker-compose.test.yml` et script de vérification `scripts/provision/check-test-env.sh`.
 - Explique la différence entre test, pré-prod et prod : isolation des données, parité fonctionnelle, pipeline progressif.
-- Dis que le jury peut consulter `docs/Environnement_de_test_Assistant_Saas.md` pour les détails.
+- Dis que le jury peut consulter `docs/Environnement_de_test_Facturation_PME.md` pour les détails.
 
 ### 2.5 Conclusion et points forts
 - Résume les réalisations : fonctionnalité, sécurité, documentation, automatisation.
@@ -63,7 +63,7 @@ Il complète le dossier technique en expliquant comment structurer ton discours 
 
 ## 6. Exemples de phrases utiles
 
-- « Le projet est un outil SaaS pour aider une PME à gérer ses factures, ses sociétés et sa trésorerie. »
+- « Le projet est un outil de facturation pour aider une PME à gérer ses factures et sa trésorerie. »
 - « J’ai structuré la solution en séparant l’accès admin et l’accès assistant. »
 - « J’ai documenté le cahier des charges, la sécurité, l’automatisation et l’environnement de test. »
 - « Le dossier contient des preuves concrètes : fichiers de configuration, scripts et explications. »

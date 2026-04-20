@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -20,12 +21,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-_jy_+w%yhznhrev9q%d%1nzur)599-^1^isy@neca4btif!mh)'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-_jy_+w%yhznhrev9q%d%1nzur)599-^1^isy@neca4btif!mh)')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DJANGO_DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['testserver', '127.0.0.1']
+ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
 
 
 # Application definition
@@ -37,10 +38,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_prometheus',
     'core',
 ]
 
 MIDDLEWARE = [
+    'django_prometheus.middleware.PrometheusBeforeMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -48,6 +51,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_prometheus.middleware.PrometheusAfterMiddleware',
 ]
 
 ROOT_URLCONF = 'finance_manager.urls'
@@ -76,8 +80,12 @@ WSGI_APPLICATION = 'finance_manager.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': os.getenv('DJANGO_DATABASE_ENGINE', 'django.db.backends.sqlite3'),
+        'NAME': os.getenv('DJANGO_DATABASE_NAME', BASE_DIR / 'db.sqlite3'),
+        'USER': os.getenv('DJANGO_DATABASE_USER', ''),
+        'PASSWORD': os.getenv('DJANGO_DATABASE_PASSWORD', ''),
+        'HOST': os.getenv('DJANGO_DATABASE_HOST', ''),
+        'PORT': os.getenv('DJANGO_DATABASE_PORT', ''),
     }
 }
 
@@ -117,14 +125,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# Redirection après la connexion
-LOGIN_REDIRECT_URL = 'admin_portal' 
 
 # URL pour se connecter
 LOGIN_URL = 'login'

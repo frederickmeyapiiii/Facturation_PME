@@ -1,8 +1,8 @@
-# Environnement de test – Assistant Saas
+# Environnement de test – Facturation PME
 
 ## 1. Objectif
 
-Ce document décrit l’environnement de test du projet Assistant Saas, en lien avec le référentiel BC02-CP5.
+Ce document décrit l’environnement de test du projet de facturation PME, en lien avec le référentiel BC02-CP5.
 Il montre que l’application dispose d’un environnement distinct de la production et d’une configuration versionnée dédiée au test.
 
 ## 2. Contexte et exigences
@@ -23,14 +23,14 @@ BC02-CP5 demande :
 ### 3.2 Environnement de pré-production
 - Objectif : vérifier le déploiement avec une configuration fonctionnellement proche de la production.
 - Mêmes images, même pipeline, mêmes fichiers de déploiement.
-- Différences acceptables : taille d’instance réduite, domaine `preprod.assistant-saas.local` ou `preprod.local`.
+- Différences acceptables : taille d’instance réduite, domaine `preprod.facturation-pme.local` ou `preprod.local`.
 
 ### 3.3 Environnement de production
 - Objectif : service final pour les utilisateurs.
 - Données réelles, monitoring actif, déploiement automatisé conservateur.
 - Déploiement autorisé uniquement après validation du test et de la pré-production.
 
-## 4. Ce que « isolé » veut dire pour Assistant Saas
+## 4. Ce que « isolé » veut dire pour Facturation PME
 
 ### Isolation réseau
 - Le test ne doit pas dépendre de la base de production.

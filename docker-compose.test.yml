@@ -2,21 +2,36 @@ version: '3.9'
 
 services:
   web:
-    image: python:3.14-slim
-    container_name: assistant_saas_test
-    working_dir: /app
-    volumes:
-      - .:/app:delegated
-      - test_db:/app/db.sqlite3
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: facturation_pme_test
+    env_file:
+      - .env.example
+    environment:
+      DJANGO_DEBUG: "True"
+      DJANGO_ALLOWED_HOSTS: "127.0.0.1,localhost"
+      DJANGO_DATABASE_ENGINE: django.db.backends.postgresql
+      DJANGO_DATABASE_NAME: finance_test_db
+      DJANGO_DATABASE_USER: postgres
+      DJANGO_DATABASE_PASSWORD: postgres
+      DJANGO_DATABASE_HOST: db
+      DJANGO_DATABASE_PORT: "5432"
     ports:
       - "8001:8000"
+    depends_on:
+      - db
+    command: bash -lc "python manage.py migrate --noinput && python manage.py runserver 0.0.0.0:8000"
+
+  db:
+    image: postgres:16
+    container_name: facturation_pme_test_db
     environment:
-      DJANGO_SETTINGS_MODULE: finance_manager.settings
-      PYTHONUNBUFFERED: "1"
-      ENVIRONMENT: test
-    command: |
-      bash -lc "pip install --no-cache-dir -r requirements.txt && python manage.py migrate --noinput && python manage.py runserver 0.0.0.0:8000"
+      POSTGRES_DB: finance_test_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - test_db:/var/lib/postgresql/data
 
 volumes:
   test_db:
-    driver: local

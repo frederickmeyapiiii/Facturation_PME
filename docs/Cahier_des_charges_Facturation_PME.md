@@ -1,32 +1,32 @@
-# Cahier des charges – Assistant Saas
+# Cahier des charges – Facturation PME
 
 ## 1. Contexte et besoin client
 
-Client : une PME de services comptables fictive nommée **Assistant Saas**.
+Client : une PME souhaitant moderniser sa gestion de facturation.
 
 Situation initiale :
-- L’entreprise gère ses factures et ses clients avec des fichiers Excel et des échanges manuels.
-- Les collaborateurs n’ont pas de portail centralisé pour suivre les factures.
-- Les accès sont partagés et il n’y a pas de séparation claire des rôles.
+- L’entreprise gère ses factures avec des tableurs et des échanges manuels.
+- Les factures ne sont pas centralisées et il est difficile de suivre les statuts de paiement.
+- Le dirigeant veut une interface simple pour créer, consulter et exporter les factures.
 
 Problème / déclencheur :
-- Les erreurs augmentent, les factures sont mal suivies, et les gérants perdent du temps.
-- Le service comptable souhaite un outil fiable pour gérer les clients, les sociétés et les factures.
-- Il faut aussi un accès sécurisé pour l’administrateur et une interface dédiée pour les gérants.
+- Les erreurs de saisie se multiplient, les relances sont difficiles et les rapports sont incomplets.
+- L’entreprise souhaite un outil fiable pour gérer ses factures et exporter les données rapidement.
+- Il faut un accès sécurisé, une interface de création de facture et un export simple.
 
 Objectif attendu :
-- Déployer une application web de gestion de facturation nommée **Assistant Saas**.
-- Offrir une interface **admin** pour la supervision et une interface **dashboard** pour les gérants.
-- Permettre la gestion des sociétés, des utilisateurs et des factures avec authentification.
+- Déployer une application web de facturation pour une seule entreprise.
+- Offrir une interface de dashboard pour créer et suivre les factures.
+- Permettre l’export des factures en CSV et la génération de PDF.
 
 ## 2. Périmètre fonctionnel
 
 Services à déployer :
-- Application web Django pour la gestion des sociétés et des factures.
+- Application web Django pour la gestion des factures d’une entreprise unique.
 - Authentification des utilisateurs.
 - Rôles séparés : `admin` (expert/backstage) et `assistant` (gérant/dashboard).
 - Dashboard entreprise pour les gérants avec consultation et création des factures.
-- Portail admin pour superviser les sociétés et les données globales.
+- Portail admin pour superviser les factures et les données globales.
 
 Applications et utilisateurs :
 - Application principale située dans le dossier `src/`.
@@ -63,7 +63,7 @@ Applications et utilisateurs :
 ## 6. Livrables attendus
 
 - Code source du projet sur GitHub.
-- Cahier des charges (`docs/Cahier_des_charges_Assistant_Saas.md`).
+- Cahier des charges (`docs/Cahier_des_charges_Facturation_PME.md`).
 - Spécifications techniques (architecture, stack, diagramme simple).
 - Dossier de projet avec captures d’écran et explications.
 - Présentation / diaporama expliquant le contexte, l’architecture et les réalisations.

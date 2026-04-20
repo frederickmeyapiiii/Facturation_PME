@@ -1,0 +1,23 @@
+[Unit]
+Description=Facturation PME Gunicorn Application
+After=network.target postgresql.service
+
+[Service]
+Type=notify
+User={{ app_user }}
+Group={{ app_group }}
+WorkingDirectory={{ app_dir }}/src
+Environment="PATH={{ app_venv }}/bin"
+Environment="DJANGO_SETTINGS_MODULE=finance_manager.settings"
+EnvironmentFile={{ app_dir }}/.env
+ExecStart={{ app_venv }}/bin/gunicorn \
+          --workers 3 \
+          --worker-class sync \
+          --bind 127.0.0.1:{{ gunicorn_port }} \
+          finance_manager.wsgi:application
+
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

@@ -1,15 +1,15 @@
-# Sécuriser l’infrastructure – Assistant Saas
+# Sécuriser l’infrastructure – Facturation PME
 
 ## 1. Objectif
 
-Ce document présente la sécurisation de l’infrastructure du projet **Assistant Saas**.
+Ce document présente la sécurisation de l’infrastructure du projet de facturation PME.
 Il explique les mesures prises pour l’accès SSH, le pare-feu, les mises à jour et les pratiques de durcissement.
 
 Ce document fait partie du dossier de projet et est destiné à être lu par le jury.
 
 ## 2. Contexte
 
-Le projet Assistant Saas est une application Django de gestion de factures et de sociétés.
+Le projet Facturation PME est une application Django de gestion de factures.
 Même si le projet est développé localement, la sécurisation est conçue comme une pratique intégrée : la sécurité doit être appliquée par défaut, pas activée seulement si on le demande.
 
 ## 3. Principes de sécurité appliqués

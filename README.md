@@ -1,59 +1,95 @@
-# Assistant Saas
-Assistant Saas
+# Facturation PME
 
-Projet RNCP – Hackathon Innovation (3PRJ1)
-Bachelor 3 – École IT (2025–2026)
+Application Django simple de facturation pour une seule entreprise.
 
-📌 Description
+## Description
 
-Assistant Saas est une application web SaaS destinée aux PME pour centraliser la comptabilité, la facturation, la trésorerie et le reporting.
-Elle simule une solution moderne proposée par un cabinet comptable à ses clients PME.
+Ce projet gère la création, l'export CSV et la génération PDF de factures pour une unique société.
+Il conserve une seule entreprise dans le système et supprime l'ancienne orientation multi-entreprises pour se concentrer sur la facturation PME.
 
-⸻
+## Fonctionnalités
 
-🎯 Objectifs du projet
-	•	Intégrer les compétences techniques de B3U1
-	•	Concevoir une application web fonctionnelle et sécurisée
-	•	Déployer une solution accessible en ligne
-	•	Travailler en équipe avec Git Flow et méthodologie agile
-	•	Présenter et documenter une solution professionnelle
+- Création de factures
+- Calcul automatique du montant TTC
+- Export des factures en CSV
+- Génération de PDF de facture
+- Authentification Django standard
 
-⸻
+## Structure
 
-🧩 Fonctionnalités principales
+- `src/finance_manager/urls.py` : routes principales
+- `src/core/models.py` : modèle `Company` et `Invoice`
+- `src/core/views.py` : gestion du dashboard et des exports
+- `src/core/templates/core/` : interface de facturation
+- `docker-compose.yml` et `Dockerfile` : configuration Docker pour un environnement PostgreSQL
+- `docker-compose.monitoring.yml` : stack Prometheus + Grafana pour la supervision
+- `ansible/` : playbook Ansible pour déploiement automatisé sur serveur Ubuntu
+- `.github/workflows/ci.yml` : pipeline CI GitHub Actions pour checks, tests et build Docker
+- `docs/Architecture_Facturation_PME.md` : schéma d'architecture technique du projet
+- `docs/IaC_Ansible_Facturation_PME.md` : guide de déploiement avec Infrastructure as Code
+- `docs/Monitoring_Facturation_PME.md` : configuration et utilisation du monitoring Prometheus + Grafana
+- `docs/` : documentation du projet (CDC, analyse préliminaire, sécurité, env de test)
 
-1. Module Comptabilité
-	•	Saisie d’écritures comptables
-	•	Plan comptable
-	•	Génération automatique du bilan
+## Utilisation
 
-2. Module Facturation
-	•	Création de devis et factures
-	•	Relances automatiques
-	•	Export PDF
+### Démarrage local (développement)
 
-3. Module Trésorerie
-	•	Rapprochement bancaire (simulation API bancaire)
-	•	Prévisionnel de trésorerie
-	•	Tableaux de bord
+```bash
+cd src
+python manage.py migrate
+python manage.py runserver
+# Accès : http://localhost:8000/dashboard/
+```
 
-4. Module Reporting
-	•	Graphiques et indicateurs clés
-	•	Export Excel
-	•	Alertes de trésorerie
+### Démarrage avec Docker
 
-5. Gestion des utilisateurs
-	•	Multi-utilisateurs
-	•	Rôles : gérant, comptable, collaborateur
-	•	Droits d’accès par profil
-Stack technique
-	•	Backend : Python (Django / Flask)
-	•	Frontend : HTML, CSS, JavaScript
-	•	Base de données : PostgreSQL
-	•	Infra : Linux (Ubuntu 22.04 LTS)
-	•	Versioning : Git (Git Flow)
-	•	Automatisation : Scripts Bash
-	•	Sécurité : Authentification, chiffrement, protection OWASP
-	•	Déploiement : Serveur Linux + accès web
+```bash
+docker compose up -d --build
+# Django : http://localhost:8000/dashboard/
+# PostgreSQL sur port 5432
+```
 
-La documentation du projet est rassemblée dans le dossier `docs/`. Elle est formulée pour être lisible par le jury et par l’équipe pédagogique, avec des explications sur le CDC, l’architecture, la sécurité et les environnements de déploiement.
+### Démarrage avec monitoring (Prometheus + Grafana)
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.monitoring.yml up -d --build
+# Django : http://localhost:8000/dashboard/
+# Prometheus : http://localhost:9090
+# Grafana : http://localhost:3000 (admin/admin)
+```
+
+### Test
+
+```bash
+docker compose -f docker-compose.test.yml up -d
+# Exécute les migrations et lance les tests
+# Django disponible sur port 8001
+```
+
+### Déploiement en production (Ansible)
+
+```bash
+cd ansible
+docker compose run ansible -i inventory.ini deploy.yml
+```
+
+## Documentation
+
+Voir le dossier `docs/` pour :
+- `Cahier_des_charges_Facturation_PME.md` : spécifications fonctionnelles et techniques
+- `Architecture_Facturation_PME.md` : schéma technique et flux
+- `Elements_Cles_Projet.md` : composants clés et choix d'architecture
+- `IaC_Ansible_Facturation_PME.md` : déploiement automatisé
+- `Monitoring_Facturation_PME.md` : supervision et métriques
+- `Securiser_Infrastructure_Facturation_PME.md` : sécurité et infrastructure
+- `Environnement_de_test_Facturation_PME.md` : stratégies de test
+
+## Compétences couvertes
+
+- **CP1** : Provisionnement serveur avec scripts Bash
+- **CP2** : Infrastructure as Code (Ansible)
+- **CP3** : Containerisation (Docker + Docker Compose)
+- **CP4** : CI/CD (GitHub Actions)
+- **CP5** : Environnements isolés (test, pré-prod, production)
+- **CP7/CP8** : Gestion de version et publication (Git/GitHub)
+- **CP9/CP10** : Documentation technique complète

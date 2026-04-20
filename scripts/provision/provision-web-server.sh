@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ============================================
 # provision-web-server.sh
-# Configure un serveur Linux Ubuntu pour l'application Assistant Saas
+# Configure un serveur Linux Ubuntu pour l'application de facturation PME
 # Usage : sudo bash scripts/provision/provision-web-server.sh
 # Auteur : Frederic
 # Date : 2026-03
@@ -13,7 +13,7 @@ log() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*"; }
 [[ $EUID -eq 0 ]] || { log "Root requis" >&2; exit 1; }
 
 APP_USER="assistant"
-APP_DIR="/opt/assistant_saas"
+APP_DIR="/opt/facturation_pme"
 APP_PORT="8000"
 LOG_FILE="/var/log/provision-web-server.log"
 
@@ -40,7 +40,7 @@ fi
 
 # Configuration Nginx
 log "Configuration Nginx"
-cat > /etc/nginx/conf.d/assistant_saas.conf <<'EOF'
+cat > /etc/nginx/conf.d/facturation_pme.conf <<'EOF'
 server {
     listen 80;
     server_name _;

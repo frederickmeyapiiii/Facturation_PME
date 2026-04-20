@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ============================================
 # check-web-server.sh
-# Vérifie le bon fonctionnement du serveur web Assistant Saas
+# Vérifie le bon fonctionnement du serveur web de facturation PME
 # Usage : sudo bash scripts/provision/check-web-server.sh
 # Auteur : Frederic
 # Date : 2026-03

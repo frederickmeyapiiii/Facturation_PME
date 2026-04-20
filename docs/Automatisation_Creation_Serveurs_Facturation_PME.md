@@ -1,8 +1,8 @@
-# Automatisation création de serveurs – Assistant Saas
+# Automatisation création de serveurs – Facturation PME
 
 ## 1. Objectif
 
-Ce document présente l’automatisation de la création et de la configuration d’un serveur virtuel pour le projet **Assistant Saas**.
+Ce document présente l’automatisation de la création et de la configuration d’un serveur virtuel pour le projet de facturation PME.
 Il explique les choix techniques, les scripts produits et les vérifications mises en place pour rendre l’infrastructure reproductible.
 
 Ce document fait partie du dossier de projet et est destiné à être lu par le jury.
@@ -10,7 +10,7 @@ Ce document fait partie du dossier de projet et est destiné à être lu par le 
 ## 2. Contexte
 
 Un serveur créé manuellement n’est pas reproductible et ne peut pas être remis en l’état en cas de panne.
-Le projet Assistant Saas doit montrer qu’un serveur peut être créé et configuré automatiquement avec un script, puis vérifié et documenté.
+Le projet de facturation PME doit montrer qu’un serveur peut être créé et configuré automatiquement avec un script, puis vérifié et documenté.
 
 ## 3. Ce que le jury attend
 
@@ -100,11 +100,11 @@ Ce document montre que tu maîtrises :
 
 ## 8. Où mettre ce document ?
 
-- Dans `docs/Automatisation_Creation_Serveurs_Assistant_Saas.md`.
+- Dans `docs/Automatisation_Creation_Serveurs_Facturation_PME.md`.
 - Dans le dossier final, le jury doit pouvoir trouver :
-  - `docs/Cahier_des_charges_Assistant_Saas.md`,
-  - `docs/Securiser_Infrastructure_Assistant_Saas.md`,
-  - `docs/Automatisation_Creation_Serveurs_Assistant_Saas.md`,
+  - `docs/Cahier_des_charges_Facturation_PME.md`,
+  - `docs/Securiser_Infrastructure_Facturation_PME.md`,
+  - `docs/Automatisation_Creation_Serveurs_Facturation_PME.md`,
   - `scripts/provision/provision-web-server.sh`,
   - `scripts/provision/check-web-server.sh`.
 

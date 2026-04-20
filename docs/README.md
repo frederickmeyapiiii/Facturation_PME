@@ -1,15 +1,19 @@
-# Dossier de documentation — Assistant Saas
+# Dossier de documentation — Facturation PME
 
-Ce dossier regroupe la documentation technique du projet Assistant Saas. Il est conçu pour être lu par le jury et par l’équipe pédagogique.
+Ce dossier regroupe la documentation technique du projet de facturation PME. Il est conçu pour être lu par le jury et par l’équipe pédagogique.
 
 ## Contenu principal
 
-- `Cahier_des_charges_Assistant_Saas.md` : le cahier des charges du projet, avec les objectifs fonctionnels et techniques.
-- `Analyse_Preliminaire.md` : l’analyse initiale du besoin métier et des services proposés.
-- `Securiser_Infrastructure_Assistant_Saas.md` : les choix et les mesures de sécurité appliqués à l’infrastructure.
-- `Automatisation_Creation_Serveurs_Assistant_Saas.md` : l’automatisation de création et de configuration d’un serveur.
-- `Environnement_de_test_Assistant_Saas.md` : la description de l’environnement de test isolé et des preuves associées.
-- `Presentation_Orale_Assistant_Saas.md` : des conseils pour préparer et présenter le projet devant le jury.
+- `docs/Cahier_des_charges_Facturation_PME.md` : le cahier des charges du projet, avec les objectifs fonctionnels et techniques.
+- `docs/Analyse_Preliminaire_Facturation_PME.md` : l’analyse initiale du besoin métier et des services proposés.
+- `docs/Securiser_Infrastructure_Facturation_PME.md` : les choix et les mesures de sécurité appliqués à l’infrastructure.
+- `docs/Automatisation_Creation_Serveurs_Facturation_PME.md` : l’automatisation de création et de configuration d’un serveur.
+- `docs/Environnement_de_test_Facturation_PME.md` : la description de l’environnement de test isolé et des preuves associées.
+- `docs/Architecture_Facturation_PME.md` : le schéma technique de l'application, la base de données et les flux.
+- `docs/Elements_Cles_Projet.md` : résumé des composants et des choix d'architecture du projet.
+- `docs/IaC_Ansible_Facturation_PME.md` : guide de déploiement avec Ansible sur serveur de production.
+- `docs/Monitoring_Facturation_PME.md` : configuration et utilisation du monitoring Prometheus + Grafana.
+- `docs/Presentation_Orale_Facturation_PME.md` : conseils pour structurer une présentation du projet.
 
 ## Comment utiliser ces documents
 

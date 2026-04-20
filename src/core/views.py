@@ -2,52 +2,26 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.template.loader import render_to_string
-from django.contrib import messages
-from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 import csv
-from .models import Invoice, Company, Profile
-from .forms import InvoiceForm, UserCreationFormSimple # Importe ton nouveau formulaire
-
-# Import pour la génération PDF - Chargé à la demande
-WEASYPRINT_AVAILABLE = False
+from .models import Invoice, Company
+from .forms import InvoiceForm
 
 @login_required
 def dashboard_redirect(request):
-    """Redirige vers le dashboard approprié selon le profil utilisateur"""
-    profile = request.user.profile
-    
-    if profile.role == 'EXPERT':
-        # Les experts vont au portail admin pour choisir une entreprise
-        return redirect('admin_portal')
-    else:
-        # Les gérants et collaborateurs vont à leur entreprise
-        if profile.company:
-            return redirect('dashboard', company_id=profile.company.id)
-        else:
-            return render(request, 'core/no_company.html')
+    """Redirige l'utilisateur vers son dashboard de facturation"""
+    return redirect('dashboard')
 
 @login_required
 def login_success(request):
-    """Redirige l'utilisateur vers le bon dashboard après la connexion"""
-    profile = request.user.profile
-    if profile.role == 'EXPERT':
-        return redirect('admin_portal')
-    else:
-        # Vérifier que l'utilisateur a une entreprise assignée
-        if profile.company:
-            return redirect('dashboard', company_id=profile.company.id)
-        else:
-            # Si pas d'entreprise, rediriger vers la page d'erreur
-            return render(request, 'core/no_company.html')
+    """Redirige l'utilisateur vers le dashboard après la connexion"""
+    return redirect('dashboard')
 
 @login_required
-def dashboard(request, company_id):
-    profile = request.user.profile
-    if profile.role != 'EXPERT' and profile.company.id != company_id:
-        raise PermissionDenied()
-
-    company = get_object_or_404(Company, id=company_id)
+def dashboard(request):
+    company = Company.objects.first()
+    if not company:
+        return render(request, 'core/no_company.html')
     
     # --- LOGIQUE DU FORMULAIRE ---
     if request.method == 'POST':
@@ -56,7 +30,7 @@ def dashboard(request, company_id):
             invoice = form.save(commit=False)
             invoice.company = company # On lie la facture à l'entreprise actuelle
             invoice.save()
-            return redirect('dashboard', company_id=company.id)
+            return redirect('dashboard')
     else:
         from datetime import date
         form = InvoiceForm(initial={
@@ -67,63 +41,15 @@ def dashboard(request, company_id):
     # -----------------------------
 
     invoices = Invoice.objects.filter(company=company).order_by('-date')
-    is_collab = (profile.role == 'COLLAB')
-    
+
     context = {
         'company': company,
         'invoices': invoices,
         'form': form, # On passe le formulaire au template
-        'is_collab': is_collab,
-        'total_ht': sum(inv.amount_ht for inv in invoices) if not is_collab else None,
+        'total_ht': sum(inv.amount_ht for inv in invoices),
         'pending_count': invoices.filter(status='SENT').count(),
     }
     return render(request, 'core/dashboard.html', context)
-
-@login_required
-def admin_portal(request):
-    # On vérifie si l'utilisateur est un staff (pour la sécurité)
-    if not request.user.is_staff:
-        # Note : Pense à créer un fichier 403.html ou rediriger vers login
-        return render(request, '403.html') 
-
-    companies = Company.objects.all()
-    total_invoices = Invoice.objects.count()
-    
-    context = {
-        'companies': companies,
-        'total_invoices': total_invoices,
-    }
-    return render(request, 'core/admin_portal.html', context)
-
-@login_required
-def add_company(request):
-    # Sécurité : Seul l'expert peut ajouter des entreprises
-    if not request.user.is_staff:
-        raise PermissionDenied("Vous n'avez pas l'autorisation d'ajouter des entreprises.")
-
-    if request.method == 'POST':
-        name = request.POST.get('name')
-        siret = request.POST.get('siret')
-        
-        # Validation basique
-        if not name or not siret:
-            messages.error(request, "Tous les champs sont obligatoires.")
-            return redirect('admin_portal')
-        
-        if len(siret) != 14 or not siret.isdigit():
-            messages.error(request, "Le SIRET doit contenir exactement 14 chiffres.")
-            return redirect('admin_portal')
-        
-        try:
-            company = Company.objects.create(name=name, siret=siret)
-            messages.success(request, f"L'entreprise '{company.name}' a été ajoutée avec succès.")
-        except Exception as e:
-            messages.error(request, f"Erreur lors de l'ajout : {str(e)}")
-        
-        return redirect('admin_portal')
-    
-    # Si c'est pas POST, rediriger vers le portail
-    return redirect('admin_portal')
 
 @login_required
 def export_invoice_pdf(request, invoice_id):
@@ -201,19 +127,16 @@ def export_invoice_pdf(request, invoice_id):
         return HttpResponse(error_msg, content_type='text/plain')
 
 @login_required
-def export_invoices_csv(request, company_id):
-    # Sécurité : vérifier que l'utilisateur a accès à cette entreprise
-    if not request.user.is_staff:
-        profile = request.user.profile
-        if profile.role != 'EXPERT' and profile.company.id != company_id:
-            raise PermissionDenied("Vous n'avez pas l'autorisation d'accéder à ces données.")
-    
-    company = get_object_or_404(Company, id=company_id)
+def export_invoices_csv(request):
+    company = Company.objects.first()
+    if not company:
+        raise PermissionDenied("Aucune entreprise configurée.")
+
     invoices = Invoice.objects.filter(company=company).order_by('-date')
     
     # Création du fichier CSV
     response = HttpResponse(content_type='text/csv; charset=utf-8')
-    response['Content-Disposition'] = f'attachment; filename="export_factures_{company.name}_{company_id}.csv"'
+    response['Content-Disposition'] = f'attachment; filename="export_factures_{company.name}.csv"'
     
     writer = csv.writer(response)
     # En-têtes du CSV
@@ -242,74 +165,3 @@ def custom_logout(request):
     logout(request)
     return redirect('/accounts/login/')
 
-@login_required
-def add_gerant(request, company_id):
-    """Créer un compte gérant pour une entreprise (réservé aux experts)"""
-    company = get_object_or_404(Company, id=company_id)
-    
-    # SÉCURITÉ : Seul un expert (staff) peut ajouter un gérant
-    if not request.user.is_staff:
-        raise PermissionDenied("Vous n'avez pas l'autorisation de créer des comptes gérants.")
-
-    if request.method == 'POST':
-        user_form = UserCreationFormSimple(request.POST)
-        if user_form.is_valid():
-            # 1. Créer l'utilisateur
-            user = user_form.save(commit=False)
-            user.set_password(user_form.cleaned_data['password'])
-            user.save()
-            
-            # 2. Mise à jour du profil (pour éviter l'IntegrityError)
-            Profile.objects.update_or_create(
-                user=user,
-                defaults={
-                    'company': company,
-                    'role': 'GERANT'
-                }
-            )
-            messages.success(request, f"Le compte gérant '{user.username}' a été créé pour l'entreprise '{company.name}'.")
-            return redirect('admin_portal')
-    else:
-        user_form = UserCreationFormSimple()
-        
-    return render(request, 'core/add_user_form.html', {
-        'form': user_form, 
-        'company': company, 
-        'role': 'Gérant'
-    })
-
-@login_required
-def add_collaborator(request, company_id):
-    """Créer un compte collaborateur pour une entreprise (réservé aux gérants)"""
-    company = get_object_or_404(Company, id=company_id)
-    
-    # SÉCURITÉ : Seul le Gérant de CETTE entreprise peut ajouter un collaborateur
-    if request.user.profile.role != 'GERANT' or request.user.profile.company.id != company.id:
-        raise PermissionDenied("Vous n'avez pas l'autorisation de recruter pour cette entreprise.")
-
-    if request.method == 'POST':
-        user_form = UserCreationFormSimple(request.POST)
-        if user_form.is_valid():
-            # 1. Création de l'utilisateur
-            user = user_form.save(commit=False)
-            user.set_password(user_form.cleaned_data['password'])
-            user.save()
-            
-            # 2. Mise à jour du profil (pour éviter l'IntegrityError)
-            Profile.objects.update_or_create(
-                user=user,
-                defaults={
-                    'company': company,
-                    'role': 'COLLAB'
-                }
-            )
-            messages.success(request, f"Le compte collaborateur '{user.username}' a été créé pour l'entreprise '{company.name}'.")
-            return redirect('dashboard', company_id=company.id)
-    else:
-        user_form = UserCreationFormSimple()
-        
-    return render(request, 'core/add_user_form.html', {
-        'form': user_form, 
-        'company': company, 
-        'role': 'Collaborateur'
-    })

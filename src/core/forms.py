@@ -1,6 +1,5 @@
 from django import forms
-from django.contrib.auth.models import User
-from .models import Invoice, Profile
+from .models import Invoice
 
 class InvoiceForm(forms.ModelForm):
     class Meta:
@@ -16,13 +15,3 @@ class InvoiceForm(forms.ModelForm):
             'status': forms.Select(attrs={'class': 'w-full px-3 py-2 border rounded-lg'}),
         }
 
-class UserCreationFormSimple(forms.ModelForm):
-    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'w-full p-2 border rounded', 'placeholder': 'Mot de passe'}))
-    
-    class Meta:
-        model = User
-        fields = ['username', 'email', 'password']
-        widgets = {
-            'username': forms.TextInput(attrs={'class': 'w-full p-2 border rounded', 'placeholder': 'Identifiant'}),
-            'email': forms.EmailInput(attrs={'class': 'w-full p-2 border rounded', 'placeholder': 'Email'}),
-        }
