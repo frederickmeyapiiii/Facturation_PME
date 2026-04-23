@@ -19,3 +19,5 @@ psycopg2-binary==2.9.11
 gunicorn==23.0.0
 prometheus-client==0.21.0
 django-prometheus==2.3.1
+reportlab==4.2.5
+xhtml2pdf==0.2.16

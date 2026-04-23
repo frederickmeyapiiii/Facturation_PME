@@ -55,31 +55,16 @@ def dashboard(request):
 def export_invoice_pdf(request, invoice_id):
     invoice = get_object_or_404(Invoice, id=invoice_id)
     
-    # Importer WeasyPrint seulement quand nécessaire
+    # Importer xhtml2pdf seulement quand nécessaire
     try:
-        from weasyprint import HTML
-    except (ImportError, OSError) as e:
+        from xhtml2pdf import pisa
+    except ImportError as e:
         error_msg = f"""
-        PDF export unavailable: WeasyPrint library dependencies not installed.
+        PDF export unavailable: xhtml2pdf library not installed.
         
         Error: {str(e)}
         
-        WeasyPrint requires GTK+ system libraries that are not installed on this system.
-        
-        To fix this on macOS, install the required dependencies:
-        
-        1. Install Homebrew (if not already installed):
-           /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-        
-        2. Install GTK+ and other dependencies:
-           brew install gtk+3 cairo pango gdk-pixbuf libffi
-        
-        3. Set environment variables (add to your ~/.zshrc or ~/.bash_profile):
-           export DYLD_LIBRARY_PATH="/opt/homebrew/lib:$DYLD_LIBRARY_PATH"
-        
-        4. Restart your terminal and Django server
-        
-        Alternative: Use a Docker container with WeasyPrint pre-installed.
+        Install with: pip install xhtml2pdf
         """
         return HttpResponse(error_msg, content_type='text/plain')
     
@@ -98,31 +83,24 @@ def export_invoice_pdf(request, invoice_id):
     
     try:
         html_string = render_to_string('core/invoice_pdf_template.html', context)
-        pdf_file = HTML(string=html_string).write_pdf()
         
-        response = HttpResponse(pdf_file, content_type='application/pdf')
+        # Créer le PDF avec xhtml2pdf
+        from io import BytesIO
+        pdf_buffer = BytesIO()
+        pisa_status = pisa.CreatePDF(html_string, dest=pdf_buffer)
+        
+        if pisa_status.err:
+            return HttpResponse('Erreur lors de la génération du PDF', status=500)
+        
+        pdf_buffer.seek(0)
+        response = HttpResponse(pdf_buffer.read(), content_type='application/pdf')
         response['Content-Disposition'] = f'inline; filename="Facture_{invoice.number}.pdf"'
         return response
     except Exception as e:
         error_msg = f"""
         PDF export failed: {str(e)}
         
-        WeasyPrint requires GTK+ system libraries that are not installed on this system.
-        
-        To fix this on macOS, install the required dependencies:
-        
-        1. Install Homebrew (if not already installed):
-           /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-        
-        2. Install GTK+ and other dependencies:
-           brew install gtk+3 cairo pango gdk-pixbuf libffi
-        
-        3. Set environment variables (add to your ~/.zshrc or ~/.bash_profile):
-           export DYLD_LIBRARY_PATH="/opt/homebrew/lib:$DYLD_LIBRARY_PATH"
-        
-        4. Restart your terminal and Django server
-        
-        Alternative: Use a Docker container with WeasyPrint pre-installed.
+        xhtml2pdf requires proper installation.
         """
         return HttpResponse(error_msg, content_type='text/plain')
 
