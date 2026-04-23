@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: facturation-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: facturation-web
+  template:
+    metadata:
+      labels:
+        app: facturation-web
+    spec:
+      containers:
+      - name: web
+        image: assistancesaas-web:latest  # Build locally or push to registry
+        envFrom:
+        - configMapRef:
+            name: facturation-config
+        ports:
+        - containerPort: 8000
+        command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
