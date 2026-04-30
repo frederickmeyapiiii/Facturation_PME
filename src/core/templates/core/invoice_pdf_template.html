@@ -3,35 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <style>
-        body { font-family: 'Helvetica', sans-serif; color: #333; margin: 0; padding: 40px; }
-        .header { border-bottom: 3px solid #2563eb; padding-bottom: 20px; margin-bottom: 30px; }
-        .grid { display: flex; justify-content: space-between; }
-        .col { width: 45%; }
-        table { width: 100%; border-collapse: collapse; margin-top: 50px; }
-        th { background: #f8fafc; text-align: left; padding: 12px; border-bottom: 2px solid #e2e8f0; }
-        td { padding: 12px; border-bottom: 1px solid #e2e8f0; }
-        .total-box { margin-top: 40px; margin-left: auto; width: 250px; background: #f8fafc; padding: 15px; border-radius: 8px; }
-        .footer { position: fixed; bottom: 0; text-align: center; font-size: 10px; color: #94a3b8; width: 100%; }
+        @page { size: A4; margin: 2cm; }
+        body { font-family: Helvetica, Arial, sans-serif; color: #333; font-size: 12px; }
+        .header { border-bottom: 3px solid #2563eb; padding-bottom: 15px; margin-bottom: 25px; }
+        .header h1 { color: #2563eb; margin: 0; font-size: 28px; }
+        .header p { margin: 5px 0; font-size: 14px; }
+        .info-table { width: 100%; margin-bottom: 30px; }
+        .info-table td { width: 50%; vertical-align: top; padding: 10px; }
+        .info-box { background: #f8fafc; padding: 15px; border-radius: 5px; }
+        .info-box h3 { margin: 0 0 10px 0; color: #2563eb; font-size: 14px; }
+        .info-box p { margin: 0; line-height: 1.5; }
+        .items-table { width: 100%; border-collapse: collapse; margin-top: 30px; margin-bottom: 30px; }
+        .items-table th { background: #2563eb; color: white; text-align: left; padding: 12px; font-weight: bold; }
+        .items-table td { padding: 12px; border-bottom: 1px solid #e2e8f0; }
+        .items-table td:last-child { text-align: right; }
+        .totals-table { width: 300px; margin-left: auto; background: #f8fafc; border-radius: 5px; }
+        .totals-table td { padding: 8px 15px; }
+        .totals-table td:last-child { text-align: right; }
+        .totals-table .total-row { font-weight: bold; color: #2563eb; border-top: 2px solid #2563eb; font-size: 14px; }
+        .footer { text-align: center; font-size: 10px; color: #94a3b8; margin-top: 50px; padding-top: 20px; border-top: 1px solid #e2e8f0; }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1 style="color: #2563eb; margin: 0;">FACTURE</h1>
-        <p style="margin: 5px 0;">N° {{ invoice.number }}</p>
+        <h1>FACTURE</h1>
+        <p>N° {{ invoice.number }}</p>
     </div>
 
-    <div class="grid" style="overflow: hidden;">
-        <div style="float: left; width: 50%;">
-            <h3 style="margin-bottom: 5px;">ÉMETTEUR</h3>
-            <p><strong>{{ company.name }}</strong><br>SIRET : {{ company.siret }}</p>
-        </div>
-        <div style="float: right; width: 40%; text-align: right;">
-            <h3 style="margin-bottom: 5px;">CLIENT</h3>
-            <p><strong>{{ invoice.client_name }}</strong><br>Date : {{ invoice.date|date:"d/m/Y" }}</p>
-        </div>
-    </div>
+    <table class="info-table">
+        <tr>
+            <td>
+                <div class="info-box">
+                    <h3>ÉMETTEUR</h3>
+                    <p><strong>{{ company.name }}</strong><br>
+                    SIRET : {{ company.siret }}</p>
+                </div>
+            </td>
+            <td>
+                <div class="info-box">
+                    <h3>CLIENT</h3>
+                    <p><strong>{{ invoice.client.name|default:'N/A' }}</strong><br>
+                    Date : {{ invoice.date|date:"d/m/Y" }}</p>
+                </div>
+            </td>
+        </tr>
+    </table>
 
-    <table>
+    <table class="items-table">
         <thead>
             <tr>
                 <th>Description</th>
@@ -41,25 +59,28 @@
         <tbody>
             <tr>
                 <td>Prestation de services / Vente de produits</td>
-                <td style="text-align: right;">{{ invoice.amount_ht|floatformat:2 }} €</td>
+                <td>{{ invoice.amount_ht|floatformat:2 }} €</td>
             </tr>
         </tbody>
     </table>
 
-    <div class="total-box">
-        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-            <span>Total HT :</span> <span style="float: right;">{{ invoice.amount_ht|floatformat:2 }} €</span>
-        </div>
-        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-            <span>TVA ({{ tva_rate }}%) :</span> <span style="float: right;">{{ amount_tva|floatformat:2 }} €</span>
-        </div>
-        <div style="display: flex; justify-content: space-between; font-weight: bold; color: #2563eb; border-top: 1px solid #ddd; padding-top: 5px;">
-            <span>TOTAL TTC :</span> <span style="float: right;">{{ amount_ttc|floatformat:2 }} €</span>
-        </div>
-    </div>
+    <table class="totals-table">
+        <tr>
+            <td>Total HT :</td>
+            <td>{{ invoice.amount_ht|floatformat:2 }} €</td>
+        </tr>
+        <tr>
+            <td>TVA ({{ tva_rate }}%) :</td>
+            <td>{{ amount_tva|floatformat:2 }} €</td>
+        </tr>
+        <tr class="total-row">
+            <td>TOTAL TTC :</td>
+            <td>{{ amount_ttc|floatformat:2 }} €</td>
+        </tr>
+    </table>
 
     <div class="footer">
-        {{ company.name }} - Document généré par Facturation PME
+        {{ company.name }} - Document généré par NAYOMI
     </div>
 </body>
 </html>

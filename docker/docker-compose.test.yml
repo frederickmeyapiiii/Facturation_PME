@@ -3,8 +3,8 @@ version: '3.9'
 services:
   web:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: docker/Dockerfile
     container_name: facturation_pme_test
     env_file:
       - .env.example
@@ -21,7 +21,7 @@ services:
       - "8001:8000"
     depends_on:
       - db
-    command: bash -lc "python manage.py migrate --noinput && python manage.py runserver 0.0.0.0:8000"
+    command: bash -lc "python manage.py migrate --noinput && python create_superuser.py && python manage.py runserver 0.0.0.0:8000"
 
   db:
     image: postgres:16

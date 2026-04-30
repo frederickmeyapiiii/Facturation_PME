@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Facture {{ invoice.number }} - Gestion Financière</title>
+</head>
+<body class="bg-gray-100">
+    <div class="max-w-4xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <div class="flex justify-between items-start mb-6">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800">Facture {{ invoice.number }}</h1>
+                    <p class="text-gray-500 mt-1">Statut: <span class="font-semibold">{{ invoice.get_status_display }}</span></p>
+                </div>
+                <div class="flex gap-2">
+                    <a href="{% url 'dashboard' %}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                        ← Retour
+                    </a>
+                    <a href="{% url 'invoice_edit' invoice.id %}" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                        ✏️ Modifier
+                    </a>
+                    <a href="{% url 'export_invoice_pdf' invoice.id %}" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                        📄 PDF
+                    </a>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-6 mb-6">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Client</h3>
+                    <p class="text-gray-600">{{ invoice.client.name|default:'N/A' }}</p>
+                    {% if invoice.client.email %}
+                    <p class="text-gray-500 text-sm">{{ invoice.client.email }}</p>
+                    {% endif %}
+                </div>
+                <div class="text-right">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Détails</h3>
+                    <p class="text-gray-600">Date : {{ invoice.date|date:"d/m/Y" }}</p>
+                    {% if invoice.due_date %}
+                    <p class="text-gray-600">Échéance : {{ invoice.due_date|date:"d/m/Y" }}</p>
+                    {% endif %}
+                    <p class="text-gray-600">Statut : <span class="font-semibold">{{ invoice.get_status_display }}</span></p>
+                </div>
+            </div>
+
+            <div class="border-t pt-4">
+                <div class="grid grid-cols-3 gap-4 text-right">
+                    <div></div>
+                    <div class="text-gray-600">Total HT :</div>
+                    <div class="font-semibold">{{ invoice.amount_ht|floatformat:2 }} €</div>
+                    <div></div>
+                    <div class="text-gray-600">TVA ({{ invoice.tva_rate }}%) :</div>
+                    <div class="font-semibold">{% widthratio invoice.amount_ht invoice.tva_rate 100 %} €</div>
+                    <div></div>
+                    <div class="text-gray-800 font-bold">Total TTC :</div>
+                    <div class="font-bold text-xl text-blue-600">{{ invoice.amount_ttc|floatformat:2 }} €</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Paiements</h2>
+            <div class="mb-4">
+                <p class="text-gray-600">Total payé : <span class="font-semibold">{{ invoice.total_paid|floatformat:2 }} €</span></p>
+                <p class="text-gray-600">Reste à payer : <span class="font-semibold {% if invoice.remaining_amount > 0 %}text-red-600{% else %}text-green-600{% endif %}">{{ invoice.remaining_amount|floatformat:2 }} €</span></p>
+            </div>
+
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Montant</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Notes</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for payment in invoice.payments.all %}
+                    <tr>
+                        <td class="px-4 py-3 text-gray-600">{{ payment.date|date:"d/m/Y" }}</td>
+                        <td class="px-4 py-3 font-semibold text-green-600">{{ payment.amount|floatformat:2 }} €</td>
+                        <td class="px-4 py-3 text-gray-500">{{ payment.notes|default:"-" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="px-4 py-3 text-gray-500">Aucun paiement enregistré.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            {% if invoice.remaining_amount > 0 %}
+            <div class="mt-4">
+                <a href="{% url 'add_payment' invoice.id %}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                    + Ajouter un paiement
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

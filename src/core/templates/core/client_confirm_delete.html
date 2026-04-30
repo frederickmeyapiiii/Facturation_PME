@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Supprimer Client - Gestion Financière</title>
+</head>
+<body class="bg-gray-100">
+    <div class="max-w-2xl mx-auto px-4 py-8">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Supprimer Client</h1>
+            <a href="{% url 'client_list' %}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                ← Retour
+            </a>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                <p class="text-red-800 font-medium">Êtes-vous sûr de vouloir supprimer le client <strong>{{ client.name }}</strong> ?</p>
+                <p class="text-red-600 text-sm mt-2">Cette action est irréversible.</p>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="flex space-x-4">
+                    <button type="submit" class="flex-1 bg-red-600 text-white font-bold py-2 rounded-lg hover:bg-red-700 transition">
+                        Confirmer la suppression
+                    </button>
+                    <a href="{% url 'client_list' %}" class="flex-1 bg-gray-300 text-gray-700 font-bold py-2 rounded-lg hover:bg-gray-400 transition text-center">
+                        Annuler
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
