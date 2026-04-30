@@ -1,0 +1,293 @@
+---
+# Ansible playbook pour configurer les VM de l'application Facturation PME
+# Ce playbook configure les serveurs web avec Django, PostgreSQL, Nginx et Gunicorn
+
+- name: Configuration des serveurs web Facturation PME
+  hosts: webservers
+  become: yes
+  vars:
+    app_name: facturation_pme
+    app_user: facturation
+    app_dir: /opt/{{ app_name }}
+    python_version: "3.11"
+    django_env: production
+    db_host: "{{ hostvars['db_server']['ansible_default_ipv4']['address'] }}"
+    db_name: facturationpme
+    db_user: "{{ vault_db_user }}"
+    db_password: "{{ vault_db_password }}"
+    secret_key: "{{ vault_django_secret_key }}"
+    allowed_hosts: "{{ vault_allowed_hosts }}"
+
+  handlers:
+    - name: Restart Gunicorn
+      systemd:
+        name: gunicorn
+        state: restarted
+
+    - name: Restart Nginx
+      systemd:
+        name: nginx
+        state: restarted
+
+  tasks:
+    - name: Mettre à jour les paquets apt
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Installer les dépendances système
+      apt:
+        name:
+          - python3
+          - python3-pip
+          - python3-venv
+          - postgresql-client
+          - nginx
+          - git
+          - build-essential
+          - libpq-dev
+          - supervisor
+        state: present
+
+    - name: Créer l'utilisateur de l'application
+      user:
+        name: "{{ app_user }}"
+        system: yes
+        shell: /bin/bash
+        home: "{{ app_dir }}"
+        create_home: yes
+
+    - name: Créer le répertoire de l'application
+      file:
+        path: "{{ app_dir }}"
+        state: directory
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: '0755'
+
+    - name: Cloner le repository de l'application
+      git:
+        repo: https://github.com/frederickmeyapiiii/Facturation_PME.git
+        dest: "{{ app_dir }}/app"
+        version: main
+        force: yes
+      become_user: "{{ app_user }}"
+
+    - name: Créer l'environnement virtuel Python
+      command: python3 -m venv "{{ app_dir }}/venv"
+      args:
+        creates: "{{ app_dir }}/venv"
+      become_user: "{{ app_user }}"
+
+    - name: Installer les dépendances Python
+      pip:
+        requirements: "{{ app_dir }}/app/src/requirements.txt"
+        virtualenv: "{{ app_dir }}/venv"
+        executable: "{{ app_dir }}/venv/bin/pip"
+      become_user: "{{ app_user }}"
+
+    - name: Créer le fichier .env
+      template:
+        src: templates/django_env.j2
+        dest: "{{ app_dir }}/.env"
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: '0600'
+      notify: Restart Gunicorn
+
+    - name: Exécuter les migrations Django
+      django_manage:
+        command: migrate
+        project_path: "{{ app_dir }}/app/src"
+        virtualenv: "{{ app_dir }}/venv"
+      environment:
+        DJANGO_SETTINGS_MODULE: finance_manager.settings
+      become_user: "{{ app_user }}"
+
+    - name: Collecter les fichiers statiques Django
+      django_manage:
+        command: collectstatic
+        project_path: "{{ app_dir }}/app/src"
+        virtualenv: "{{ app_dir }}/venv"
+      environment:
+        DJANGO_SETTINGS_MODULE: finance_manager.settings
+      become_user: "{{ app_user }}"
+
+    - name: Créer le fichier de service Gunicorn
+      template:
+        src: templates/gunicorn.service.j2
+        dest: /etc/systemd/system/gunicorn.service
+        mode: '0644'
+      notify: Restart Gunicorn
+
+    - name: Démarrer et activer Gunicorn
+      systemd:
+        name: gunicorn
+        state: started
+        enabled: yes
+        daemon_reload: yes
+
+    - name: Créer la configuration Nginx
+      template:
+        src: templates/nginx.conf.j2
+        dest: /etc/nginx/sites-available/{{ app_name }}
+        mode: '0644'
+      notify: Restart Nginx
+
+    - name: Activer le site Nginx
+      file:
+        src: /etc/nginx/sites-available/{{ app_name }}
+        dest: /etc/nginx/sites-enabled/{{ app_name }}
+        state: link
+      notify: Restart Nginx
+
+    - name: Supprimer la configuration Nginx par défaut
+      file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+      notify: Restart Nginx
+
+    - name: Vérifier la configuration Nginx
+      command: nginx -t
+      register: nginx_test
+      changed_when: false
+
+    - name: Configurer le firewall UFW
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: tcp
+      loop:
+        - 22
+        - 80
+        - 443
+
+    - name: Activer UFW
+      ufw:
+        state: enabled
+        policy: deny
+
+- name: Configuration du serveur de base de données PostgreSQL
+  hosts: db_servers
+  become: yes
+  vars:
+    db_name: facturationpme
+    db_user: "{{ vault_db_user }}"
+    db_password: "{{ vault_db_password }}"
+
+  tasks:
+    - name: Mettre à jour les paquets apt
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Installer PostgreSQL
+      apt:
+        name:
+          - postgresql
+          - postgresql-contrib
+          - python3-psycopg2
+        state: present
+
+    - name: Démarrer et activer PostgreSQL
+      systemd:
+        name: postgresql
+        state: started
+        enabled: yes
+
+    - name: Créer la base de données
+      become_user: postgres
+      postgresql_db:
+        name: "{{ db_name }}"
+
+    - name: Créer l'utilisateur de la base de données
+      become_user: postgres
+      postgresql_user:
+        db: "{{ db_name }}"
+        name: "{{ db_user }}"
+        password: "{{ db_password }}"
+        priv: "ALL"
+
+    - name: Autoriser les connexions distantes
+      lineinfile:
+        path: /etc/postgresql/15/main/pg_hba.conf
+        regexp: '^host\s+all\s+all\s+127.0.0.1/32'
+        line: "host all all 0.0.0.0/0 md5"
+        backup: yes
+      notify: Restart PostgreSQL
+
+    - name: Écouter sur toutes les interfaces
+      lineinfile:
+        path: /etc/postgresql/15/main/postgresql.conf
+        regexp: "^#?listen_addresses"
+        line: "listen_addresses = '*'"
+        backup: yes
+      notify: Restart PostgreSQL
+
+  handlers:
+    - name: Restart PostgreSQL
+      systemd:
+        name: postgresql
+        state: restarted
+
+- name: Configuration du monitoring (Prometheus + Grafana)
+  hosts: monitoring_servers
+  become: yes
+  vars:
+    prometheus_version: "2.47.0"
+    grafana_version: "10.2.0"
+
+  tasks:
+    - name: Créer l'utilisateur monitoring
+      user:
+        name: monitoring
+        system: yes
+        shell: /bin/bash
+        home: /opt/monitoring
+        create_home: yes
+
+    - name: Télécharger Prometheus
+      get_url:
+        url: "https://github.com/prometheus/prometheus/releases/download/v{{ prometheus_version }}/prometheus-{{ prometheus_version }}.linux-amd64.tar.gz"
+        dest: /tmp/prometheus.tar.gz
+        mode: '0644'
+
+    - name: Extraire Prometheus
+      unarchive:
+        src: /tmp/prometheus.tar.gz
+        dest: /opt/monitoring
+        remote_src: yes
+        owner: monitoring
+        group: monitoring
+
+    - name: Créer le service systemd Prometheus
+      template:
+        src: templates/prometheus.service.j2
+        dest: /etc/systemd/system/prometheus.service
+        mode: '0644'
+      notify: Restart Prometheus
+
+    - name: Démarrer et activer Prometheus
+      systemd:
+        name: prometheus
+        state: started
+        enabled: yes
+        daemon_reload: yes
+
+    - name: Installer Grafana
+      apt:
+        name: grafana
+        state: present
+      when: ansible_os_family == "Debian"
+
+    - name: Démarrer et activer Grafana
+      systemd:
+        name: grafana-server
+        state: started
+        enabled: yes
+
+  handlers:
+    - name: Restart Prometheus
+      systemd:
+        name: prometheus
+        state: restarted

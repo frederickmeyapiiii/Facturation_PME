@@ -1,0 +1,56 @@
+# Configuration Nginx pour {{ app_name }}
+# Upstream Gunicorn
+upstream {{ app_name }}_app {
+    server unix:{{ app_dir }}/app.sock fail_timeout=0;
+}
+
+# Serveur HTTP - redirection vers HTTPS
+server {
+    listen 80;
+    server_name {{ allowed_hosts }};
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+# Serveur HTTPS
+server {
+    listen 443 ssl http2;
+    server_name {{ allowed_hosts }};
+
+    # Configuration SSL (à compléter avec certbot/Let's Encrypt)
+    # ssl_certificate /etc/letsencrypt/live/{{ app_name }}/fullchain.pem;
+    # ssl_certificate_key /etc/letsencrypt/live/{{ app_name }}/privkey.pem;
+    # ssl_protocols TLSv1.2 TLSv1.3;
+    # ssl_ciphers HIGH:!aNULL:!MD5;
+
+    client_max_body_size 20M;
+
+    location /static/ {
+        alias {{ app_dir }}/app/src/static/;
+        expires 30d;
+        add_header Cache-Control "public, immutable";
+    }
+
+    location /media/ {
+        alias {{ app_dir }}/app/src/media/;
+        expires 30d;
+        add_header Cache-Control "public, immutable";
+    }
+
+    location / {
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_pass http://{{ app_name }}_app;
+        proxy_redirect off;
+    }
+
+    # Health check endpoint
+    location /health/ {
+        access_log off;
+        proxy_pass http://{{ app_name }}_app;
+    }
+}

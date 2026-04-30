@@ -1,0 +1,107 @@
+version: '3.8'
+
+services:
+  # Application Django en production
+  web:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: facturation_pme_web
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - DJANGO_SETTINGS_MODULE=finance_manager.settings
+      - DEBUG=False
+      - DB_HOST=postgres
+      - DB_PORT=5432
+    volumes:
+      - static_volume:/app/src/static
+      - media_volume:/app/src/media
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - backend_network
+      - frontend_network
+    healthcheck:
+      test: ["CMD", "python", "manage.py", "check", "--deploy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # PostgreSQL isolé avec réseau privé
+  postgres:
+    image: postgres:15-alpine
+    container_name: facturation_pme_postgres
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_DB=${DB_NAME:-facturationpme}
+      - POSTGRES_USER=${DB_USER:-facturation}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-facturation}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # Pas d'exposition de ports - isolation réseau
+    # ports:
+    #   - "5432:5432"
+
+  # Nginx reverse proxy
+  nginx:
+    image: nginx:alpine
+    container_name: facturation_pme_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - static_volume:/app/static:ro
+      - media_volume:/app/media:ro
+    depends_on:
+      - web
+    networks:
+      - frontend_network
+
+  # Redis pour cache et sessions
+  redis:
+    image: redis:7-alpine
+    container_name: facturation_pme_redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    networks:
+      - backend_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+networks:
+  backend_network:
+    driver: bridge
+    internal: true  # Réseau isolé sans accès internet
+  frontend_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  static_volume:
+    driver: local
+  media_volume:
+    driver: local
