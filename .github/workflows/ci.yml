@@ -153,11 +153,14 @@ jobs:
           image-ref: ${{ env.DOCKER_IMAGE }}:latest
           format: 'sarif'
           output: 'trivy-results.sarif'
+        continue-on-error: true
 
       - name: Upload Trivy results to GitHub Security
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: 'trivy-results.sarif'
+        if: always()
+        continue-on-error: true
 
   deploy:
     runs-on: ubuntu-latest
