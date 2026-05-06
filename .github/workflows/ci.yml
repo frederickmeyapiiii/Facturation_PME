@@ -47,6 +47,18 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: 'pip'
 
+      - name: Install system dependencies for pycairo
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libcairo2-dev \
+            libpango1.0-dev \
+            libglib2.0-dev \
+            libffi-dev \
+            libssl-dev \
+            build-essential \
+            pkg-config
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
