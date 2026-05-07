@@ -162,11 +162,15 @@ jobs:
         if: always()
         continue-on-error: true
 
+  # Job deploy désactivé par défaut - nécessite configuration AWS et secrets
+  # Activer en configurant les secrets GitHub requis:
+  # AWS_ROLE_ARN, TF_STATE_BUCKET, TF_LOCKS_TABLE, DB_USERNAME, DB_PASSWORD,
+  # SSH_KEY_NAME, SSH_PRIVATE_KEY, DJANGO_SECRET_KEY, ALLOWED_HOSTS, EMAIL_USER, EMAIL_PASSWORD
   deploy:
     runs-on: ubuntu-latest
     needs: [build, security]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    
+    if: false # Désactivé par défaut pour éviter les échecs
+
     permissions:
       contents: read
       id-token: write
@@ -236,10 +240,10 @@ jobs:
           cat > ansible/inventory.ini << EOF
           [webservers]
           web-1 ansible_host=${{ steps.tf-outputs.outputs.web_ip }} ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/deploy_key
-          
+
           [db_servers]
           db-1 ansible_host=${{ steps.tf-outputs.outputs.db_endpoint }} ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/deploy_key
-          
+
           [all:vars]
           ansible_python_interpreter=/usr/bin/python3
           EOF
