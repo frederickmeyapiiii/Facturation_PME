@@ -60,6 +60,7 @@ def dashboard(request):
         'overdue_count': overdue_invoices.count(),
         'client_count': clients.count(),
         'monthly_revenue': list(monthly_revenue),
+        'user': request.user,
     }
     return render(request, 'core/dashboard.html', context)
 

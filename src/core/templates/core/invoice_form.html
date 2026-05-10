@@ -3,17 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title }} - Gestion Financière</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <title>{{ title }} - Gestion Financière</title>
+    <style>
+        .sidebar-link:hover {
+            transform: translateX(4px);
+        }
+    </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
-    <div class="max-w-4xl mx-auto py-8 px-4">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-gray-800">{{ title }}</h1>
-            <a href="{% url 'dashboard' %}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
-                ← Retour
-            </a>
-        </div>
+    <div class="flex">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-gradient-to-b from-slate-800 to-slate-900 min-h-screen fixed left-0 top-0 shadow-xl">
+            <div class="p-6 border-b border-slate-700">
+                <h1 class="text-2xl font-bold text-white">Dashboard</h1>
+                <p class="text-slate-400 text-sm mt-1">Gestion Financière</p>
+            </div>
+            
+            <nav class="p-4">
+                <ul class="space-y-2">
+                    <li>
+                        <a href="{% url 'dashboard' %}" class="sidebar-link flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition-all duration-200">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                            </svg>
+                            <span class="font-medium">Accueil</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'payment_history' %}" class="sidebar-link flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition-all duration-200">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span class="font-medium">Paiements</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'client_list' %}" class="sidebar-link flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition-all duration-200">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            </svg>
+                            <span class="font-medium">Clients</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'invoice_create' %}" class="sidebar-link flex items-center gap-3 px-4 py-3 text-white bg-slate-700 rounded-lg transition-all duration-200">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            <span class="font-medium">Nouvelle Facture</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-700">
+                <a href="{% url 'custom_logout' %}" class="sidebar-link flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-900/30 hover:text-red-300 rounded-lg transition-all duration-200">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                    </svg>
+                    <span class="font-medium">Déconnexion</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 ml-64 p-8">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-800">{{ title }}</h1>
+                <p class="text-gray-600 mt-2">Créez une nouvelle facture</p>
+            </div>
 
         <form method="post" class="bg-white rounded-lg shadow p-6">
             {% csrf_token %}
@@ -48,43 +107,62 @@
             <h2 class="text-xl font-semibold text-gray-800 mb-4">Lignes de facture</h2>
             
             <div id="formset-container">
-                <div style="display: none;"></div>{{ formset.management_form }}</div>
-                <div id="formset-rows">
-                    {% for form in formset %}
-                    <div class="formset-row grid grid-cols-12 gap-4 mb-4 items-end bg-gray-50 p-4 rounded-lg">
-                        <div class="col-span-5">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                            {{ form.description }}
-                        </div>
-                        <div class="col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Quantité</label>
-                            {{ form.quantity }}
-                        </div>
-                        <div class="col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Prix unitaire</label>
-                            {{ form.unit_price }}
-                        </div>
-                        <div class="col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Total</label>
-                            <input type="text" class="w-full px-3 py-2 border rounded-lg bg-gray-200" readonly value="0.00">
-                        </div>
-                        <div class="col-span-1">
-                            {{ form.DELETE }}
-                        </div>
+                {{ formset.management_form }}
+                <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                    <div class="grid grid-cols-12 gap-4 mb-3 items-center font-semibold text-gray-700 text-sm border-b pb-3">
+                        <div class="col-span-5">Description</div>
+                        <div class="col-span-2">Quantité</div>
+                        <div class="col-span-2">Prix unitaire</div>
+                        <div class="col-span-2">Total</div>
+                        <div class="col-span-1 text-center">Action</div>
                     </div>
-                    {% endfor %}
+                    <div id="formset-rows">
+                        {% for form in formset %}
+                        <div class="formset-row grid grid-cols-12 gap-4 mb-3 items-end p-4 bg-white border rounded-lg hover:border-blue-300 transition-colors">
+                            <div class="col-span-5">
+                                {{ form.description }}
+                                {{ form.id }}
+                            </div>
+                            <div class="col-span-2">
+                                {{ form.quantity }}
+                            </div>
+                            <div class="col-span-2">
+                                {{ form.unit_price }}
+                            </div>
+                            <div class="col-span-2">
+                                <input type="text" class="line-total w-full px-3 py-2 border rounded-lg bg-gray-100 font-semibold" readonly value="0.00">
+                            </div>
+                            <div class="col-span-1 text-center">
+                                <button type="button" class="delete-row text-red-500 hover:text-red-700 transition-colors" title="Supprimer cette ligne">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </button>
+                                {{ form.DELETE }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
 
-            <button type="button" id="add-form" class="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
-                + Ajouter une ligne
-            </button>
-
-            <div class="mt-8 flex justify-end gap-4">
-                <a href="{% url 'dashboard' %}" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-md font-medium transition-colors">
+            <div class="mt-6 mb-8">
+                <button type="button" id="add-form" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors inline-flex items-center gap-2 shadow-md hover:shadow-lg">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Ajouter une ligne
+                </button>
+            </div>
+            
+            <div class="flex justify-end gap-4 pt-8 border-t border-gray-300">
+                <a href="{% url 'dashboard' %}" class="bg-gray-500 hover:bg-gray-600 text-white px-8 py-3 rounded-md font-medium transition-colors shadow-md hover:shadow-lg">
                     Annuler
                 </a>
-                <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-md font-medium transition-colors">
+                <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-md font-medium transition-colors shadow-md hover:shadow-lg flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
                     Enregistrer
                 </button>
             </div>
@@ -95,75 +173,120 @@
         document.addEventListener('DOMContentLoaded', function() {
             const addFormBtn = document.getElementById('add-form');
             const formsetRows = document.getElementById('formset-rows');
+            const totalFormsInput = document.querySelector('input[name="form-TOTAL_FORMS"]');
             
-            console.log('Initialisation - Bouton trouvé:', addFormBtn);
-            console.log('Initialisation - Container trouvé:', formsetRows);
-            
-            // Afficher tous les inputs pour déboguer
-            const allInputs = document.querySelectorAll('input');
-            console.log('Tous les inputs trouvés:', allInputs.length);
-            allInputs.forEach((input, index) => {
-                console.log(`Input ${index}: name="${input.name}", id="${input.id}"`);
+            console.log('Elements found:', {
+                addFormBtn: addFormBtn,
+                formsetRows: formsetRows,
+                totalFormsInput: totalFormsInput
             });
             
-            // Trouver le champ TOTAL_FORMS dans le formulaire
-            const totalFormsInput = document.querySelector('input[name="form-TOTAL_FORMS"]');
-            console.log('Initialisation - TOTAL_FORMS:', totalFormsInput ? totalFormsInput.value : 'non trouvé');
+            if (!totalFormsInput) {
+                console.error('TOTAL_FORMS input not found!');
+                return;
+            }
             
-            function updateTotals() {
+            const initTotalForms = parseInt(totalFormsInput.value);
+            console.log('Initial total forms:', initTotalForms);
+            
+            // Mettre à jour les totaux des lignes
+            function updateLineTotals() {
                 const rows = document.querySelectorAll('.formset-row');
                 rows.forEach(row => {
-                    const quantityInput = row.querySelector('[name$="-quantity"]');
-                    const unitPriceInput = row.querySelector('[name$="-unit_price"]');
-                    const totalInput = row.querySelector('input[readonly]');
+                    const quantityInput = row.querySelector('input[name*="quantity"]');
+                    const unitPriceInput = row.querySelector('input[name*="unit_price"]');
+                    const totalInput = row.querySelector('.line-total');
+                    
+                    console.log('Row found:', row, 'Quantity input:', quantityInput, 'Price input:', unitPriceInput, 'Total input:', totalInput);
                     
                     if (quantityInput && unitPriceInput && totalInput) {
                         const quantity = parseFloat(quantityInput.value) || 0;
                         const unitPrice = parseFloat(unitPriceInput.value) || 0;
-                        totalInput.value = (quantity * unitPrice).toFixed(2);
+                        const total = quantity * unitPrice;
+                        totalInput.value = total.toFixed(2);
+                        console.log('Calculating:', quantity, 'x', unitPrice, '=', total);
                     }
                 });
             }
             
-            formsetRows.addEventListener('input', updateTotals);
-            updateTotals();
-            
-            addFormBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                console.log('Clic sur le bouton Ajouter une ligne');
+            // Configurer les événements pour le calcul automatique
+            function setupRowEvents(row) {
+                const quantityInput = row.querySelector('input[name*="quantity"]');
+                const unitPriceInput = row.querySelector('input[name*="unit_price"]');
+                const deleteBtn = row.querySelector('.delete-row');
                 
-                if (!totalFormsInput) {
-                    console.log('Champ TOTAL_FORMS non trouvé');
-                    // Essayer de trouver le champ avec une autre méthode
-                    const alternativeTotalForms = document.querySelector('input[name*="TOTAL_FORMS"]');
-                    console.log('Alternative TOTAL_FORMS:', alternativeTotalForms);
-                    return;
+                console.log('Setting up events for row:', row);
+                console.log('Found inputs - Quantity:', quantityInput, 'Price:', unitPriceInput, 'Delete btn:', deleteBtn);
+                
+                if (quantityInput) {
+                    quantityInput.addEventListener('input', function() {
+                        console.log('Quantity input changed:', quantityInput.value);
+                        updateLineTotals();
+                    });
+                    quantityInput.addEventListener('change', updateLineTotals);
+                    console.log('Added event listeners to quantity input');
+                }
+                if (unitPriceInput) {
+                    unitPriceInput.addEventListener('input', function() {
+                        console.log('Price input changed:', unitPriceInput.value);
+                        updateLineTotals();
+                    });
+                    unitPriceInput.addEventListener('change', updateLineTotals);
+                    console.log('Added event listeners to price input');
                 }
                 
+                if (deleteBtn) {
+                    deleteBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const deleteCheckbox = row.querySelector('[name$="-DELETE"]');
+                        if (deleteCheckbox) {
+                            deleteCheckbox.checked = true;
+                            row.style.opacity = '0.5';
+                            row.style.textDecoration = 'line-through';
+                            deleteBtn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
+                            deleteBtn.classList.remove('text-red-500', 'hover:text-red-700');
+                            deleteBtn.classList.add('text-green-500');
+                        }
+                    });
+                }
+            }
+            
+            // Initialiser les lignes existantes
+            const existingRows = document.querySelectorAll('.formset-row');
+            console.log('Found existing rows:', existingRows.length);
+            
+            if (existingRows.length === 0) {
+                console.log('No rows found, adding initial row');
+                // Créer une ligne initiale si aucune n'existe
+                addFormBtn.click();
+            } else {
+                existingRows.forEach(row => {
+                    setupRowEvents(row);
+                });
+                updateLineTotals();
+            }
+            
+            // Ajouter une nouvelle ligne
+            addFormBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                
                 if (formsetRows.children.length === 0) {
-                    console.log('Aucune ligne trouvée');
                     return;
                 }
                 
                 const totalForms = parseInt(totalFormsInput.value);
-                console.log('Nombre de formulaires actuels:', totalForms);
-                
                 const templateRow = formsetRows.children[0];
                 const newRow = templateRow.cloneNode(true);
-                
                 const formCount = totalForms;
-                console.log('Nouveau compteur:', formCount);
                 
-                newRow.querySelectorAll('input, select').forEach(input => {
+                // Réinitialiser les inputs
+                newRow.querySelectorAll('input, select, textarea').forEach(input => {
                     const oldName = input.name;
                     const oldId = input.id;
                     
-                    console.log('Traitement input - oldName:', oldName);
-                    
-                    if (oldName) {
+                    if (oldName && oldName.includes('form-')) {
                         const newName = oldName.replace(/form-\d+-/, `form-${formCount}-`);
                         input.name = newName;
-                        console.log('Nouveau nom:', newName);
                         
                         if (oldId) {
                             input.id = oldId.replace(/id_form-\d+-/, `id_form-${formCount}-`);
@@ -174,21 +297,38 @@
                         } else if (input.type !== 'hidden') {
                             input.value = '';
                         }
+                        
+                        // Réinitialiser les styles pour les lignes supprimées
+                        newRow.style.opacity = '1';
+                        newRow.style.textDecoration = 'none';
                     }
                 });
                 
-                const totalInput = newRow.querySelector('input[readonly]');
+                const totalInput = newRow.querySelector('.line-total');
                 if (totalInput) {
                     totalInput.value = '0.00';
+                }
+                
+                const deleteBtn = newRow.querySelector('.delete-row');
+                if (deleteBtn) {
+                    deleteBtn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>';
+                    deleteBtn.classList.remove('text-green-500');
+                    deleteBtn.classList.add('text-red-500', 'hover:text-red-700');
                 }
                 
                 formsetRows.appendChild(newRow);
                 totalFormsInput.value = formCount + 1;
                 
-                console.log('Nouvelle ligne ajoutée. Total formes:', totalFormsInput.value);
-                updateTotals();
+                // Configurer les événements pour la nouvelle ligne
+                setupRowEvents(newRow);
+                updateLineTotals();
+                
+                // Scroll vers la nouvelle ligne
+                newRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             });
         });
     </script>
+        </main>
+    </div>
 </body>
 </html>

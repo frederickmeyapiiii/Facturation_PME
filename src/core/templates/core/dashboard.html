@@ -3,94 +3,229 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
     <title>Dashboard - Gestion Financière</title>
+    <style>
+        .sidebar-link:hover {
+            transform: translateX(4px);
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+    </style>
 </head>
-<body style="font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f5f5f5;">
-    <div style="max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-            <h1 style="margin: 0; color: #1f2937;">Dashboard Financier</h1>
-            <div style="display: flex; gap: 10px;">
-                <a href="{% url 'payment_history' %}" style="padding: 8px 16px; background-color: #8b5cf6; color: white; text-decoration: none; border-radius: 4px;">💰 Paiements</a>
-                <a href="{% url 'client_list' %}" style="padding: 8px 16px; background-color: #3b82f6; color: white; text-decoration: none; border-radius: 4px;">👥 Clients</a>
-                <a href="{% url 'custom_logout' %}" style="padding: 8px 16px; background-color: #ef4444; color: white; text-decoration: none; border-radius: 4px;">Déconnexion</a>
+<body class="bg-gray-100 min-h-screen">
+    <div class="flex">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-gradient-to-b from-slate-800 to-slate-900 min-h-screen fixed left-0 top-0 shadow-xl">
+            <div class="p-6 border-b border-slate-700">
+                <h1 class="text-2xl font-bold text-white">Dashboard</h1>
+                <p class="text-slate-400 text-sm mt-1">Gestion Financière</p>
             </div>
-        </div>
+            
+            <nav class="p-4">
+                <ul class="space-y-2">
+                    <li>
+                        <a href="{% url 'dashboard' %}" class="sidebar-link flex items-center gap-3 px-4 py-3 text-white bg-slate-700 rounded-lg transition-all duration-200">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                            </svg>
+                            <span class="font-medium">Accueil</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'payment_history' %}" class="sidebar-link flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition-all duration-200">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span class="font-medium">Paiements</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'client_list' %}" class="sidebar-link flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition-all duration-200">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            </svg>
+                            <span class="font-medium">Clients</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'invoice_create' %}" class="sidebar-link flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg transition-all duration-200">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            <span class="font-medium">Nouvelle Facture</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
 
-        {% if company %}
-        <div style="background: #eff6ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #bfdbfe;">
-            <p><strong>{{ company.name }}</strong> - SIRET: {{ company.siret }}</p>
-        </div>
-        {% endif %}
+            <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-700">
+                <a href="{% url 'custom_logout' %}" class="sidebar-link flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-900/30 hover:text-red-300 rounded-lg transition-all duration-200">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                    </svg>
+                    <span class="font-medium">Déconnexion</span>
+                </a>
+            </div>
+        </aside>
 
-        <div style="display: flex; gap: 20px; margin-bottom: 30px; flex-wrap: wrap;">
-            <div style="flex: 1; min-width: 140px; background: #f8f9fa; padding: 20px; border-radius: 8px; text-align: center; border-left: 4px solid #10b981;">
-                <div style="color: #6b7280; font-size: 12px; text-transform: uppercase; margin-bottom: 5px;">CA TTC</div>
-                <div style="font-size: 24px; font-weight: bold; color: #1f2937;">{{ total_ttc|floatformat:0 }} €</div>
+        <!-- Main Content -->
+        <main class="flex-1 ml-64 p-8">
+            <!-- Welcome Section -->
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-800">
+                    Bienvenue, {{ user.first_name|default:user.username }} 👋
+                </h1>
+                <p class="text-gray-600 mt-2">Voici un aperçu de votre activité financière</p>
             </div>
-            <div style="flex: 1; min-width: 140px; background: #f8f9fa; padding: 20px; border-radius: 8px; text-align: center; border-left: 4px solid #3b82f6;">
-                <div style="color: #6b7280; font-size: 12px; text-transform: uppercase; margin-bottom: 5px;">Payées</div>
-                <div style="font-size: 24px; font-weight: bold; color: #1f2937;">{{ paid_count }}</div>
-            </div>
-            <div style="flex: 1; min-width: 140px; background: #f8f9fa; padding: 20px; border-radius: 8px; text-align: center; border-left: 4px solid #f59e0b;">
-                <div style="color: #6b7280; font-size: 12px; text-transform: uppercase; margin-bottom: 5px;">Impayées</div>
-                <div style="font-size: 24px; font-weight: bold; color: #1f2937;">{{ unpaid_count }}</div>
-            </div>
-            <div style="flex: 1; min-width: 140px; background: #f8f9fa; padding: 20px; border-radius: 8px; text-align: center; border-left: 4px solid #ef4444;">
-                <div style="color: #6b7280; font-size: 12px; text-transform: uppercase; margin-bottom: 5px;">En Retard</div>
-                <div style="font-size: 24px; font-weight: bold; color: #1f2937;">{{ overdue_count }}</div>
-            </div>
-        </div>
 
-        <div>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2 style="margin: 0; color: #1f2937;">Factures récentes</h2>
-                <div style="display: flex; gap: 10px;">
-                    <a href="{% url 'invoice_create' %}" style="padding: 8px 16px; background-color: #3b82f6; color: white; text-decoration: none; border-radius: 4px;">+ Nouvelle Facture</a>
-                    <a href="{% url 'export_invoices_csv' %}" style="padding: 8px 16px; background-color: #10b981; color: white; text-decoration: none; border-radius: 4px;">📊 Export CSV</a>
+            {% if company %}
+            <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-6 rounded-xl shadow-lg mb-8 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-2xl font-bold">{{ company.name }}</h2>
+                        <p class="text-blue-100 mt-1">SIRET: {{ company.siret }}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-blue-100 text-sm">Total Clients</p>
+                        <p class="text-3xl font-bold">{{ client_count }}</p>
+                    </div>
                 </div>
             </div>
-            {% if invoices %}
-            <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
-                <thead>
-                    <tr style="background-color: #f8f9fa;">
-                        <th style="padding: 12px; text-align: left; border-bottom: 1px solid #ddd;">N° Facture</th>
-                        <th style="padding: 12px; text-align: left; border-bottom: 1px solid #ddd;">Client</th>
-                        <th style="padding: 12px; text-align: left; border-bottom: 1px solid #ddd;">Montant TTC</th>
-                        <th style="padding: 12px; text-align: left; border-bottom: 1px solid #ddd;">Statut</th>
-                        <th style="padding: 12px; text-align: left; border-bottom: 1px solid #ddd;">Date</th>
-                        <th style="padding: 12px; text-align: left; border-bottom: 1px solid #ddd;">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for invoice in invoices %}
-                    <tr>
-                        <td style="padding: 12px; border-bottom: 1px solid #ddd;">{{ invoice.number }}</td>
-                        <td style="padding: 12px; border-bottom: 1px solid #ddd;">{{ invoice.client.name|default:'N/A' }}</td>
-                        <td style="padding: 12px; border-bottom: 1px solid #ddd;">{{ invoice.amount_ttc|floatformat:2 }} €</td>
-                        <td style="padding: 12px; border-bottom: 1px solid #ddd;">
-                            {% if invoice.status == 'PAID' %}
-                                <span style="background-color: #d1fae5; color: #065f46; padding: 4px 8px; border-radius: 12px; font-size: 11px;">{{ invoice.get_status_display }}</span>
-                            {% elif invoice.status == 'OVERDUE' %}
-                                <span style="background-color: #fee2e2; color: #991b1b; padding: 4px 8px; border-radius: 12px; font-size: 11px;">{{ invoice.get_status_display }}</span>
-                            {% elif invoice.status == 'SENT' %}
-                                <span style="background-color: #fef3c7; color: #92400e; padding: 4px 8px; border-radius: 12px; font-size: 11px;">{{ invoice.get_status_display }}</span>
-                            {% else %}
-                                <span style="background-color: #f3f4f6; color: #374151; padding: 4px 8px; border-radius: 12px; font-size: 11px;">{{ invoice.get_status_display }}</span>
-                            {% endif %}
-                        </td>
-                        <td style="padding: 12px; border-bottom: 1px solid #ddd;">{{ invoice.date|date:"d/m/Y" }}</td>
-                        <td style="padding: 12px; border-bottom: 1px solid #ddd;">
-                            <a href="{% url 'invoice_detail' invoice.id %}" style="color: #3b82f6; text-decoration: none; margin-right: 10px;">Détails</a>
-                            <a href="{% url 'export_invoice_pdf' invoice.id %}" target="_blank" style="color: #10b981; text-decoration: none;">PDF</a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            {% else %}
-            <p style="text-align: center; color: #6b7280; padding: 20px;">Aucune facture trouvée.</p>
             {% endif %}
-        </div>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="stat-card bg-white rounded-xl shadow-md p-6 border-l-4 border-emerald-500 transition-transform duration-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm font-medium uppercase tracking-wide">CA TTC</p>
+                            <p class="text-3xl font-bold text-gray-800 mt-2">{{ total_ttc|floatformat:0 }} €</p>
+                        </div>
+                        <div class="bg-emerald-100 p-3 rounded-full">
+                            <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500 transition-transform duration-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm font-medium uppercase tracking-wide">Payées</p>
+                            <p class="text-3xl font-bold text-gray-800 mt-2">{{ paid_count }}</p>
+                        </div>
+                        <div class="bg-blue-100 p-3 rounded-full">
+                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card bg-white rounded-xl shadow-md p-6 border-l-4 border-amber-500 transition-transform duration-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm font-medium uppercase tracking-wide">Impayées</p>
+                            <p class="text-3xl font-bold text-gray-800 mt-2">{{ unpaid_count }}</p>
+                        </div>
+                        <div class="bg-amber-100 p-3 rounded-full">
+                            <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card bg-white rounded-xl shadow-md p-6 border-l-4 border-red-500 transition-transform duration-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm font-medium uppercase tracking-wide">En Retard</p>
+                            <p class="text-3xl font-bold text-gray-800 mt-2">{{ overdue_count }}</p>
+                        </div>
+                        <div class="bg-red-100 p-3 rounded-full">
+                            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Invoices Section -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-xl font-bold text-gray-800">Factures récentes</h2>
+                        <div class="flex gap-3">
+                            <a href="{% url 'invoice_create' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                </svg>
+                                Nouvelle Facture
+                            </a>
+                            <a href="{% url 'export_invoices_csv' %}" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                </svg>
+                                Export TVA
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                {% if invoices %}
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">N° Facture</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Montant TTC</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            {% for invoice in invoices %}
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{{ invoice.number }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-gray-600">{{ invoice.client.name|default:'N/A' }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-800">{{ invoice.amount_ttc|floatformat:2 }} €</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    {% if invoice.status == 'PAID' %}
+                                        <span class="px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs font-medium">{{ invoice.get_status_display }}</span>
+                                    {% elif invoice.status == 'OVERDUE' %}
+                                        <span class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium">{{ invoice.get_status_display }}</span>
+                                    {% elif invoice.status == 'SENT' %}
+                                        <span class="px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-medium">{{ invoice.get_status_display }}</span>
+                                    {% else %}
+                                        <span class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium">{{ invoice.get_status_display }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-gray-600">{{ invoice.date|date:"d/m/Y" }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <a href="{% url 'invoice_detail' invoice.id %}" class="text-blue-600 hover:text-blue-800 font-medium mr-4">Détails</a>
+                                    <a href="{% url 'export_invoice_pdf' invoice.id %}" target="_blank" class="text-emerald-600 hover:text-emerald-800 font-medium">PDF</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="p-12 text-center">
+                    <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    <p class="text-gray-500">Aucune facture trouvée.</p>
+                </div>
+                {% endif %}
+            </div>
+        </main>
     </div>
 </body>
 </html>

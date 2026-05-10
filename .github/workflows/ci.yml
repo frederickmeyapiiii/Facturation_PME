@@ -162,108 +162,48 @@ jobs:
         if: always()
         continue-on-error: true
 
-  # Job deploy désactivé par défaut - nécessite configuration AWS et secrets
-  # Activer en configurant les secrets GitHub requis:
-  # AWS_ROLE_ARN, TF_STATE_BUCKET, TF_LOCKS_TABLE, DB_USERNAME, DB_PASSWORD,
-  # SSH_KEY_NAME, SSH_PRIVATE_KEY, DJANGO_SECRET_KEY, ALLOWED_HOSTS, EMAIL_USER, EMAIL_PASSWORD
   deploy:
     runs-on: ubuntu-latest
-    needs: [build, security]
-    if: false # Désactivé par défaut pour éviter les échecs
-
-    permissions:
-      contents: read
-      id-token: write
+    needs: [build]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: eu-west-3
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          role-session-name: github-actions-deploy
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: "1.6.0"
-
-      - name: Terraform Init
-        run: |
-          cd terraform
-          terraform init \
-            -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}" \
-            -backend-config="key=infrastructure/terraform.tfstate" \
-            -backend-config="region=eu-west-3" \
-            -backend-config="encrypt=true" \
-            -backend-config="dynamodb_table=${{ secrets.TF_LOCKS_TABLE }}"
-
-      - name: Terraform Plan
-        run: |
-          cd terraform
-          terraform plan \
-            -var="environment=prod" \
-            -var="db_username=${{ secrets.DB_USERNAME }}" \
-            -var="db_password=${{ secrets.DB_PASSWORD }}" \
-            -var="ssh_key_name=${{ secrets.SSH_KEY_NAME }}" \
-            -out=tfplan
-
-      - name: Terraform Apply
-        run: |
-          cd terraform
-          terraform apply -auto-approve tfplan
-
-      - name: Get Terraform Outputs
-        id: tf-outputs
-        run: |
-          cd terraform
-          echo "web_ip=$(terraform output -raw web_instance_public_ip)" >> $GITHUB_OUTPUT
-          echo "db_endpoint=$(terraform output -raw db_endpoint)" >> $GITHUB_OUTPUT
-
-      - name: Setup SSH key
+      - name: Configure SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H ${{ steps.tf-outputs.outputs.web_ip }} >> ~/.ssh/known_hosts
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/facturation-pme-key.pem
+          chmod 600 ~/.ssh/facturation-pme-key.pem
+          ssh-keyscan -H ${{ secrets.EC2_IP }} >> ~/.ssh/known_hosts
 
-      - name: Setup Ansible
+      - name: Copy files to EC2
         run: |
-          sudo apt-get update
-          sudo apt-get install -y ansible
+          scp -i ~/.ssh/facturation-pme-key.pem -o StrictHostKeyChecking=no -r docker ${{ secrets.EC2_USER }}@${{ secrets.EC2_IP }}:/home/ubuntu/facturation-pme/
+          scp -i ~/.ssh/facturation-pme-key.pem -o StrictHostKeyChecking=no -r src ${{ secrets.EC2_USER }}@${{ secrets.EC2_IP }}:/home/ubuntu/facturation-pme/
 
-      - name: Create Ansible inventory
+      - name: Configure .env on EC2
         run: |
-          cat > ansible/inventory.ini << EOF
-          [webservers]
-          web-1 ansible_host=${{ steps.tf-outputs.outputs.web_ip }} ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/deploy_key
+          ssh -i ~/.ssh/facturation-pme-key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_IP }} "cd /home/ubuntu/facturation-pme && echo 'DEBUG=False' > .env && echo 'SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}' >> .env && echo 'ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0,${{ secrets.EC2_IP }}' >> .env && echo 'DATABASE_URL=postgresql://facturationpme:${{ secrets.DB_PASSWORD }}@db:5432/facturationpme' >> .env && echo 'DB_NAME=facturationpme' >> .env && echo 'DB_USER=facturationpme' >> .env && echo 'DB_PASSWORD=${{ secrets.DB_PASSWORD }}' >> .env"
 
-          [db_servers]
-          db-1 ansible_host=${{ steps.tf-outputs.outputs.db_endpoint }} ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/deploy_key
-
-          [all:vars]
-          ansible_python_interpreter=/usr/bin/python3
-          EOF
-
-      - name: Create Ansible vault file
+      - name: Pull Docker image
         run: |
-          cat > ansible/vault.yml << EOF
-          vault_db_user: ${{ secrets.DB_USERNAME }}
-          vault_db_password: ${{ secrets.DB_PASSWORD }}
-          vault_django_secret_key: ${{ secrets.DJANGO_SECRET_KEY }}
-          vault_allowed_hosts: ${{ secrets.ALLOWED_HOSTS }}
-          vault_email_user: ${{ secrets.EMAIL_USER }}
-          vault_email_password: ${{ secrets.EMAIL_PASSWORD }}
-          EOF
+          ssh -i ~/.ssh/facturation-pme-key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_IP }} "echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin"
+          ssh -i ~/.ssh/facturation-pme-key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_IP }} "docker pull ghcr.io/frederickmeyapiiii/facturation-pme:latest"
 
-      - name: Run Ansible playbook
+      - name: Update docker-compose.prod.yml to use pulled image
         run: |
-          cd ansible
-          ansible-playbook -i inventory.ini playbook.yml --extra-vars "@vault.yml"
+          ssh -i ~/.ssh/facturation-pme-key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_IP }} "cd /home/ubuntu/facturation-pme/docker && sed -i 's|build:|image: ghcr.io/frederickmeyapiiii/facturation-pme:latest\n    # build:|' docker-compose.prod.yml"
 
-      - name: Cleanup SSH key
+      - name: Restart Docker containers on EC2
+        run: |
+          ssh -i ~/.ssh/facturation-pme-key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_IP }} "cd /home/ubuntu/facturation-pme/docker && sudo docker-compose -f docker-compose.prod.yml down && sudo docker-compose -f docker-compose.prod.yml up -d"
+
+      - name: Run migrations on EC2
+        run: |
+          ssh -i ~/.ssh/facturation-pme-key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_IP }} "cd /home/ubuntu/facturation-pme/docker && sudo docker-compose -f docker-compose.prod.yml exec web python manage.py migrate"
+
+      - name: Cleanup SSH
         if: always()
-        run: rm -f ~/.ssh/deploy_key
+        run: rm -f ~/.ssh/facturation-pme-key.pem

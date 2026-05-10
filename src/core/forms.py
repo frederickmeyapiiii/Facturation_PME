@@ -23,7 +23,7 @@ class InvoiceLineForm(forms.ModelForm):
         }
 
 InvoiceLineFormSet = forms.inlineformset_factory(
-    Invoice, InvoiceLine, form=InvoiceLineForm, extra=1, can_delete=True
+    Invoice, InvoiceLine, form=InvoiceLineForm, extra=1, can_delete=True, min_num=1, validate_min=True
 )
 
 class InvoiceForm(forms.ModelForm):
