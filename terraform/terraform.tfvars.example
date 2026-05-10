@@ -1,0 +1,10 @@
+# Variables pour le déploiement
+# Copiez ce fichier en terraform.tfvars et ajustez les valeurs
+
+aws_region     = "eu-west-3"
+environment    = "dev"
+project_name   = "facturation-pme"
+ssh_key_name   = "facturation-pme-key"
+db_username    = "facturationpme"
+db_password    = "votre_mot_de_passe_securise"
+domain_name    = "facturation-pme.com"

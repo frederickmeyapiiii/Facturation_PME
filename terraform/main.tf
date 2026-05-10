@@ -6,39 +6,38 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.0"
+      version = "~> 4.0"
     }
   }
-  backend "s3" {
-    bucket         = "facturation-pme-terraform-state"
-    key            = "infrastructure/terraform.tfstate"
-    region         = "eu-west-3"
-    encrypt        = true
-    dynamodb_table = "facturation-pme-terraform-locks"
-  }
+
+  # Backend S3 pour le state (commenté pour le premier déploiement)
+  # backend "s3" {
+  #   bucket         = "facturation-pme-terraform-state"
+  #   key            = "terraform.tfstate"
+  #   region         = "eu-west-3"
+  #   encrypt        = true
+  #   dynamodb_table = "facturation-pme-terraform-locks"
+  # }
 }
 
 provider "aws" {
   region = var.aws_region
 }
 
-# Variables
-variable "aws_region" {
-  description = "Région AWS"
-  type        = string
-  default     = "eu-west-3"
-}
+# Data source pour trouver le dernier AMI Ubuntu 22.04 LTS
+data "aws_ami" "ubuntu" {
+  most_recent = true
+  owners      = ["099720109477"] # Canonical
 
-variable "environment" {
-  description = "Environnement (dev, staging, prod)"
-  type        = string
-  default     = "dev"
-}
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
+  }
 
-variable "project_name" {
-  description = "Nom du projet"
-  type        = string
-  default     = "facturation-pme"
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
 }
 
 # Réseau VPC
@@ -66,17 +65,17 @@ resource "aws_subnet" "public" {
   }
 }
 
-# Subnet privé
-resource "aws_subnet" "private" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.2.0/24"
-  availability_zone = "${var.aws_region}a"
-
-  tags = {
-    Name        = "${var.project_name}-private-subnet-${var.environment}"
-    Environment = var.environment
-  }
-}
+# Subnet privé (optionnel pour RDS - commenté pour simplifier)
+# resource "aws_subnet" "private" {
+#   vpc_id            = aws_vpc.main.id
+#   cidr_block        = "10.0.2.0/24"
+#   availability_zone = "${var.aws_region}a"
+# 
+#   tags = {
+#     Name        = "${var.project_name}-private-subnet-${var.environment}"
+#     Environment = var.environment
+#   }
+# }
 
 # Internet Gateway
 resource "aws_internet_gateway" "main" {
@@ -147,38 +146,40 @@ resource "aws_security_group" "web" {
   }
 }
 
-# Security Group pour PostgreSQL
-resource "aws_security_group" "database" {
-  name_prefix = "${var.project_name}-db-${var.environment}"
-  vpc_id      = aws_vpc.main.id
-
-  ingress {
-    from_port       = 5432
-    to_port         = 5432
-    protocol        = "tcp"
-    security_groups = [aws_security_group.web.id]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    Name        = "${var.project_name}-db-sg-${var.environment}"
-    Environment = var.environment
-  }
-}
+# Security Group pour PostgreSQL (optionnel pour RDS)
+# Commenté car on utilise PostgreSQL dans Docker pour simplifier
+# resource "aws_security_group" "database" {
+#   name_prefix = "${var.project_name}-db-${var.environment}"
+#   vpc_id      = aws_vpc.main.id
+# 
+#   ingress {
+#     from_port       = 5432
+#     to_port         = 5432
+#     protocol        = "tcp"
+#     security_groups = [aws_security_group.web.id]
+#   }
+# 
+#   egress {
+#     from_port   = 0
+#     to_port     = 0
+#     protocol    = "-1"
+#     cidr_blocks = ["0.0.0.0/0"]
+#   }
+# 
+#   tags = {
+#     Name        = "${var.project_name}-db-sg-${var.environment}"
+#     Environment = var.environment
+#   }
+# }
 
 # Instance EC2 pour l'application web
 resource "aws_instance" "web" {
-  ami                    = "ami-0c7217cdde317cfec" # Ubuntu 22.04 LTS eu-west-3
-  instance_type          = var.environment == "prod" ? "t3.medium" : "t3.micro"
+  ami                    = data.aws_ami.ubuntu.id
+  instance_type          = "t3.micro"
   subnet_id              = aws_subnet.public.id
   vpc_security_group_ids = [aws_security_group.web.id]
   key_name               = var.ssh_key_name
+  user_data              = file("${path.module}/user_data.sh")
 
   tags = {
     Name        = "${var.project_name}-web-${var.environment}"
@@ -186,84 +187,53 @@ resource "aws_instance" "web" {
   }
 }
 
-variable "ssh_key_name" {
-  description = "Nom de la clé SSH AWS"
-  type        = string
-  default     = "facturation-pme-key"
-}
+# Instance RDS PostgreSQL (optionnel - commenté pour utiliser PostgreSQL dans Docker)
+# Décommentez pour une base de données managée en production
+# resource "aws_db_instance" "postgres" {
+#   identifier             = "${var.project_name}-db-${var.environment}"
+#   engine                 = "postgres"
+#   engine_version         = "15.4"
+#   instance_class         = var.environment == "prod" ? "db.t3.medium" : "db.t3.micro"
+#   allocated_storage      = var.environment == "prod" ? 100 : 20
+#   storage_type           = "gp2"
+#   db_name                = "facturationpme"
+#   username               = var.db_username
+#   password               = var.db_password
+#   db_subnet_group_name   = aws_db_subnet_group.main.name
+#   vpc_security_group_ids = [aws_security_group.database.id]
+#   skip_final_snapshot    = var.environment == "dev" ? true : false
+#   final_snapshot_identifier = var.environment == "prod" ? "${var.project_name}-final-snapshot" : null
+# 
+#   tags = {
+#     Name        = "${var.project_name}-rds-${var.environment}"
+#     Environment = var.environment
+#   }
+# }
 
-# Instance RDS PostgreSQL
-resource "aws_db_instance" "postgres" {
-  identifier             = "${var.project_name}-db-${var.environment}"
-  engine                 = "postgres"
-  engine_version         = "15.4"
-  instance_class         = var.environment == "prod" ? "db.t3.medium" : "db.t3.micro"
-  allocated_storage      = var.environment == "prod" ? 100 : 20
-  storage_type           = "gp2"
-  db_name                = "facturationpme"
-  username               = var.db_username
-  password               = var.db_password
-  db_subnet_group_name   = aws_db_subnet_group.main.name
-  vpc_security_group_ids = [aws_security_group.database.id]
-  skip_final_snapshot    = var.environment == "dev" ? true : false
-  final_snapshot_identifier = var.environment == "prod" ? "${var.project_name}-final-snapshot" : null
+# DB Subnet Group (optionnel pour RDS)
+# resource "aws_db_subnet_group" "main" {
+#   name       = "${var.project_name}-db-subnet-group-${var.environment}"
+#   subnet_ids = [aws_subnet.private.id]
+# 
+#   tags = {
+#     Name        = "${var.project_name}-db-subnet-group-${var.environment}"
+#     Environment = var.environment
+#   }
+# }
 
-  tags = {
-    Name        = "${var.project_name}-rds-${var.environment}"
-    Environment = var.environment
-  }
-}
+# Load Balancer (optionnel pour scaling horizontal)
+# Commenté pour simplifier le déploiement initial
+# resource "aws_lb" "web" {
+#   name               = "${var.project_name}-lb-${var.environment}"
+#   internal           = false
+#   load_balancer_type = "application"
+#   security_groups    = [aws_security_group.web.id]
+#   subnets            = [aws_subnet.public.id]
+# 
+#   tags = {
+#     Name        = "${var.project_name}-lb-${var.environment}"
+#     Environment = var.environment
+#   }
+# }
 
-variable "db_username" {
-  description = "Nom d'utilisateur PostgreSQL"
-  type        = string
-  sensitive   = true
-}
-
-variable "db_password" {
-  description = "Mot de passe PostgreSQL"
-  type        = string
-  sensitive   = true
-}
-
-# DB Subnet Group
-resource "aws_db_subnet_group" "main" {
-  name       = "${var.project_name}-db-subnet-group-${var.environment}"
-  subnet_ids = [aws_subnet.private.id]
-
-  tags = {
-    Name        = "${var.project_name}-db-subnet-group-${var.environment}"
-    Environment = var.environment
-  }
-}
-
-# Load Balancer
-resource "aws_lb" "web" {
-  name               = "${var.project_name}-lb-${var.environment}"
-  internal           = false
-  load_balancer_type = "application"
-  security_groups    = [aws_security_group.web.id]
-  subnets            = [aws_subnet.public.id]
-
-  tags = {
-    Name        = "${var.project_name}-lb-${var.environment}"
-    Environment = var.environment
-  }
-}
-
-# Output
-output "web_instance_public_ip" {
-  description = "IP publique de l'instance web"
-  value       = aws_instance.web.public_ip
-}
-
-output "db_endpoint" {
-  description = "Endpoint de la base de données"
-  value       = aws_db_instance.postgres.endpoint
-  sensitive   = true
-}
-
-output "load_balancer_dns" {
-  description = "DNS du load balancer"
-  value       = aws_lb.web.dns_name
-}
+# Outputs sont définis dans outputs.tf
