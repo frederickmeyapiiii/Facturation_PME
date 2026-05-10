@@ -1,11 +1,13 @@
 # Facturation PME
 
-Application Django simple de facturation pour une PME.
+Application Django professionnelle de facturation pour une PME, déployée sur AWS avec CI/CD automatisé.
 
 ## Description
 
 Ce projet gère la création, l'export CSV et la génération PDF de factures pour une entreprise.
 Il permet de gérer les clients, les factures, les paiements et de suivre les statuts de facturation.
+
+L'application est déployée automatiquement sur AWS EC2 via GitHub Actions CI/CD.
 
 ## Fonctionnalités
 
@@ -29,6 +31,8 @@ Il permet de gérer les clients, les factures, les paiements et de suivre les st
 - `src/core/forms.py` : formulaires Django
 - `src/core/templates/core/` : templates HTML
 - `docker/` : configuration Docker (Dockerfile, docker-compose files)
+- `terraform/` : configuration Terraform pour AWS
+- `.github/workflows/` : workflows GitHub Actions CI/CD
 - `docs/` : documentation du projet
 
 ## Utilisation
@@ -68,26 +72,28 @@ docker compose -f docker-compose.yml -f docker-compose.monitoring.yml up -d --bu
 # Grafana : http://localhost:3000 (admin/admin)
 ```
 
-### Test
+### Déploiement sur AWS
 
-```bash
-cd docker
-docker compose -f docker-compose.test.yml up -d
-# Exécute les migrations et lance les tests
-# Django disponible sur port 8001
-```
+Le déploiement est automatisé via GitHub Actions. À chaque push sur la branche `main` :
+
+1. Les tests s'exécutent
+2. L'image Docker est construite et pushée sur GitHub Container Registry
+3. L'application est déployée automatiquement sur l'instance EC2 AWS
+
+Pour configurer le déploiement, voir le dossier `terraform/` et le fichier `terraform/README.md`.
 
 ## Documentation
 
 Voir le dossier `docs/` pour :
-- `Cahier_des_charges_Facturation_PME.md` : spécifications fonctionnelles et techniques
-- `Architecture_Facturation_PME.md` : schéma technique et flux
-- `Elements_Cles_Projet.md` : composants clés et choix d'architecture
+- `Documentation_Complete.md` : documentation complète du projet (regroupe tous les aspects techniques)
 
 ## Technologies utilisées
 
 - **Backend** : Django 4.2.27
-- **Base de données** : PostgreSQL 16
+- **Base de données** : PostgreSQL 15
 - **Containerisation** : Docker + Docker Compose
 - **Génération PDF** : xhtml2pdf, weasyprint
 - **Monitoring** : Prometheus + Grafana (optionnel)
+- **Infrastructure** : Terraform (AWS)
+- **CI/CD** : GitHub Actions
+- **Hébergement** : AWS EC2
