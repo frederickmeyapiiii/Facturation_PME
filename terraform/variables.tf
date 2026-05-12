@@ -42,3 +42,9 @@ variable "domain_name" {
   type        = string
   default     = "facturation-pme.com"
 }
+
+variable "ssh_cidr" {
+  description = "CIDR autorisé pour SSH (ex: 1.2.3.4/32)"
+  type        = string
+  default     = "0.0.0.0/0"
+}

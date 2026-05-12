@@ -39,26 +39,3 @@ mkdir -p /home/ubuntu/facturation-pme
 chown ubuntu:ubuntu /home/ubuntu/facturation-pme
 
 echo "✅ Initialisation terminée !"
-
-# Configuration de Nginx comme reverse proxy
-cat > /etc/nginx/sites-available/facturation-pme << 'EOF'
-server {
-    listen 80;
-    server_name _;
-
-    location / {
-        proxy_pass http://localhost:8000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-EOF
-
-ln -sf /etc/nginx/sites-available/facturation-pme /etc/nginx/sites-enabled/
-rm -f /etc/nginx/sites-enabled/default
-systemctl enable nginx
-systemctl start nginx
-
-echo "✅ Initialisation EC2 terminée"
