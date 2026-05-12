@@ -8,3 +8,4 @@ ssh_key_name   = "facturation-pme-key"
 db_username    = "facturationpme"
 db_password    = "votre_mot_de_passe_securise"
 domain_name    = "facturation-pme.com"
+ssh_cidr       = "0.0.0.0/0"  # À restreindre avec votre IP pour la production
