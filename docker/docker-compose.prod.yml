@@ -3,9 +3,10 @@ version: '3.8'
 services:
   # Application Django en production
   web:
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile
+    image: ghcr.io/frederickmeyapiiii/facturation-pme:latest
+    # build:
+    #   context: ..
+    #   dockerfile: docker/Dockerfile
     container_name: facturation_pme_web
     restart: unless-stopped
     env_file:

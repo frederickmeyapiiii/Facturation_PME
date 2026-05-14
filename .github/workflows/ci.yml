@@ -178,10 +178,9 @@ jobs:
           chmod 600 ~/.ssh/facturation-pme-key.pem
           ssh-keyscan -H ${{ secrets.EC2_IP }} >> ~/.ssh/known_hosts
 
-      - name: Copy files to EC2
+      - name: Copy docker files to EC2
         run: |
           scp -i ~/.ssh/facturation-pme-key.pem -o StrictHostKeyChecking=no -r docker ${{ secrets.EC2_USER }}@${{ secrets.EC2_IP }}:/home/ubuntu/facturation-pme/
-          scp -i ~/.ssh/facturation-pme-key.pem -o StrictHostKeyChecking=no -r src ${{ secrets.EC2_USER }}@${{ secrets.EC2_IP }}:/home/ubuntu/facturation-pme/
 
       - name: Configure .env on EC2
         run: |
@@ -192,17 +191,14 @@ jobs:
           ssh -i ~/.ssh/facturation-pme-key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_IP }} "echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin"
           ssh -i ~/.ssh/facturation-pme-key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_IP }} "docker pull ghcr.io/frederickmeyapiiii/facturation-pme:latest"
 
-      - name: Update docker-compose.prod.yml to use pulled image
-        run: |
-          ssh -i ~/.ssh/facturation-pme-key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_IP }} "cd /home/ubuntu/facturation-pme/docker && sed -i 's|build:|image: ghcr.io/frederickmeyapiiii/facturation-pme:latest\n    # build:|' docker-compose.prod.yml"
 
       - name: Restart Docker containers on EC2
         run: |
-          ssh -i ~/.ssh/facturation-pme-key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_IP }} "cd /home/ubuntu/facturation-pme/docker && sudo docker-compose -f docker-compose.prod.yml down && sudo docker-compose -f docker-compose.prod.yml up -d"
+          ssh -i ~/.ssh/facturation-pme-key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_IP }} "cd /home/ubuntu/facturation-pme/docker && docker compose -f docker-compose.prod.yml down && docker compose -f docker-compose.prod.yml up -d"
 
       - name: Run migrations on EC2
         run: |
-          ssh -i ~/.ssh/facturation-pme-key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_IP }} "cd /home/ubuntu/facturation-pme/docker && sudo docker-compose -f docker-compose.prod.yml exec web python manage.py migrate"
+          ssh -i ~/.ssh/facturation-pme-key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_IP }} "cd /home/ubuntu/facturation-pme/docker && docker compose -f docker-compose.prod.yml exec web python manage.py migrate"
 
       - name: Cleanup SSH
         if: always()
