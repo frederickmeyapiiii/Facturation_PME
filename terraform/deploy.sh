@@ -63,12 +63,17 @@ echo "🔧 Configuration et démarrage de l'application..."
 ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no ubuntu@$IP_PUBLIQUE << 'EOF'
     cd /home/ubuntu/facturation-pme
     
-    # Création du fichier .env pour la production
-    cat > .env << ENVEOF
-        DEBUG=False
-        SECRET_KEY=$(python3 -c 'import secrets; print(secrets.token_urlsafe(50))')
-        ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0
-        DATABASE_URL=postgresql://facturationpme:your_password_here@localhost:5432/facturationpme
+    # Création du fichier d'environnement pour la production
+    cat > docker/.env.example << ENVEOF
+        DJANGO_DEBUG=False
+        DJANGO_SECRET_KEY=$(python3 -c 'import secrets; print(secrets.token_urlsafe(50))')
+        DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0,$IP_PUBLIQUE
+        DJANGO_DATABASE_ENGINE=django.db.backends.postgresql
+        DJANGO_DATABASE_NAME=facturationpme
+        DJANGO_DATABASE_USER=facturationpme
+        DJANGO_DATABASE_PASSWORD=facturationpme
+        DJANGO_DATABASE_HOST=db
+        DJANGO_DATABASE_PORT=5432
     ENVEOF
     
     # Construction et démarrage des conteneurs
@@ -91,6 +96,6 @@ ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no ubuntu@$IP_PUBLIQUE << 'EOF'
 EOF
 
 echo "✅ Déploiement terminé !"
-echo "🌐 Application accessible sur: http://$IP_PUBLIQUE:8000"
+echo "🌐 Application accessible sur: http://$IP_PUBLIQUE"
 echo "🔑 Pour vous connecter: ssh -i $SSH_KEY ubuntu@$IP_PUBLIQUE"
 echo "📊 Pour voir les logs: ssh -i $SSH_KEY ubuntu@$IP_PUBLIQUE 'sudo docker-compose -f /home/ubuntu/facturation-pme/docker/docker-compose.yml logs -f'"

@@ -13,11 +13,12 @@ services:
       - .env
     environment:
       - DJANGO_SETTINGS_MODULE=finance_manager.settings
-      - DEBUG=False
-      - DB_HOST=db
-      - DB_PORT=5432
+      - DJANGO_DEBUG=False
+      - DJANGO_DATABASE_HOST=db
+      - DJANGO_DATABASE_PORT=5432
+      - DJANGO_DATABASE_ENGINE=django.db.backends.postgresql
     volumes:
-      - static_volume:/app/src/static
+      - static_volume:/app/staticfiles
       - media_volume:/app/src/media
     depends_on:
       db:
@@ -32,7 +33,7 @@ services:
       retries: 3
       start_period: 40s
     ports:
-      - "8000:8000"
+      - "80:8000"
 
   # PostgreSQL isolé avec réseau privé
   db:
