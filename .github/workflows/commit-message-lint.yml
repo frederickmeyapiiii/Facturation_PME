@@ -1,0 +1,49 @@
+name: Vérification messages de commit en français
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  french-commit-message:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Vérifier les messages de commit
+        run: |
+          set -e
+          if [ "${{ github.event_name }}" = "push" ]; then
+            range="${{ github.event.before }}..${{ github.sha }}"
+          else
+            range="${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
+          fi
+          commits=$(git rev-list --no-merges "$range" || true)
+          if [ -z "$commits" ]; then
+            echo "Aucun nouveau commit à vérifier."
+            exit 0
+          fi
+
+          french_pattern='ajout|correction|mise[[:space:]]à[[:space:]]jour|mise[[:space:]]à[[:space:]]niveau|suppression|désactivation|activation|déploiement|documentation|test|refactorisation|amélioration|configuration|publication|nettoyage|sécurité|initialisation|mise|upgrade|préparation'
+          bad=0
+
+          for sha in $commits; do
+            msg=$(git log --format=%B -n 1 "$sha")
+            if ! echo "$msg" | grep -Eiq "$french_pattern"; then
+              echo "Commit $sha semble ne pas être en français :"
+              echo "--------------------------------------------"
+              echo "$msg"
+              echo
+              bad=1
+            fi
+          done
+
+          if [ "$bad" -eq 1 ]; then
+            echo "Les messages de commit doivent être rédigés en français."
+            echo "Utilisez des mots comme : ajout, correction, mise à jour, déploiement, documentation, test, refactorisation, amélioration, sécurité."
+            exit 1
+          fi
