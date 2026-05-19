@@ -201,16 +201,16 @@ jobs:
           ssh -i ~/.ssh/facturation-pme-key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_IP }} <<'EOF'
             mkdir -p /home/ubuntu/facturation-pme/docker
             cat > /home/ubuntu/facturation-pme/docker/.env <<'ENV'
-DJANGO_DEBUG=False
-DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}
-DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0,${{ secrets.EC2_IP }}
-DJANGO_DATABASE_ENGINE=django.db.backends.postgresql
-DJANGO_DATABASE_NAME=facturationpme
-DJANGO_DATABASE_USER=facturationpme
-DJANGO_DATABASE_PASSWORD=${{ secrets.DB_PASSWORD }}
-DJANGO_DATABASE_HOST=db
-DJANGO_DATABASE_PORT=5432
-ENV
+            DJANGO_DEBUG=False
+            DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}
+            DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0,${{ secrets.EC2_IP }}
+            DJANGO_DATABASE_ENGINE=django.db.backends.postgresql
+            DJANGO_DATABASE_NAME=facturationpme
+            DJANGO_DATABASE_USER=facturationpme
+            DJANGO_DATABASE_PASSWORD=${{ secrets.DB_PASSWORD }}
+            DJANGO_DATABASE_HOST=db
+            DJANGO_DATABASE_PORT=5432
+            ENV
           EOF
 
       - name: Pull Docker image
